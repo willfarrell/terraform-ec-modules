@@ -1,4 +1,3 @@
-# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html
 data "aws_ami" "main" {
   most_recent = true
 
@@ -6,7 +5,7 @@ data "aws_ami" "main" {
     name = "name"
 
     values = [
-      "amzn2-ami-hvm-*-x86_64-ecs",
+      "amzn2-ami-hvm-*-x86_64-bastion",
     ]
   }
 
@@ -18,24 +17,25 @@ data "aws_ami" "main" {
     ]
   }
 
-  owners = ["self"]
+  owners = [
+    "self",
+  ]
 }
 
 module "defaults" {
   source = "git@github.com:willfarrell/terraform-defaults?ref=v0.1.0"
-  name   = var.name
+  name   = "${var.name}-bastion"
   tags   = var.default_tags
 }
 
 locals {
   account_id       = module.defaults.account_id
   region           = module.defaults.region
-  name             = "${module.defaults.name}-ecs"
+  name             = module.defaults.name
   tags             = module.defaults.tags
   image_id         = var.image_id != "" ? var.image_id : data.aws_ami.main.image_id
-  instance_type    = var.instance_type
-  max_size         = var.min_size
-  min_size         = var.min_size
-  desired_capacity = var.desired_capacity
+  max_size         = "1"
+  min_size         = "1"
+  desired_capacity = "1"
 }
 
