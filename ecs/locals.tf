@@ -1,3 +1,4 @@
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html
 data "aws_ami" "main" {
   most_recent = true
 
@@ -9,7 +10,15 @@ data "aws_ami" "main" {
     ]
   }
 
-  owners = ["self"]
+  filter {
+    name = "virtualization-type"
+
+    values = [
+      "hvm",
+    ]
+  }
+
+  owners = ["amazon"]
 }
 
 module "defaults" {
@@ -21,7 +30,7 @@ module "defaults" {
 locals {
   account_id       = module.defaults.account_id
   region           = module.defaults.region
-  name             = module.defaults.name
+  name             = "${module.defaults.name}-ecs"
   tags             = module.defaults.tags
   image_id         = var.image_id != "" ? var.image_id : data.aws_ami.main.image_id
   instance_type    = var.instance_type

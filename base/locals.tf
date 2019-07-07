@@ -5,7 +5,7 @@ data "aws_ami" "main" {
     name = "name"
 
     values = [
-      "amzn2-ami-hvm-*-x86_64-gp2",
+      "amzn2-ami-hvm-*-x86_64-ebs",
     ]
   }
 
@@ -17,7 +17,7 @@ data "aws_ami" "main" {
     ]
   }
 
-  owners = ["137112412989"]
+  owners = ["amazon"]
 }
 
 module "defaults" {
