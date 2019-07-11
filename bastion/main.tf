@@ -48,7 +48,7 @@ resource "aws_iam_policy" "main-ip" {
   path        = "/"
   description = "${local.name}-ip Policy"
 
-  policy = <<EOF
+  policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -63,7 +63,7 @@ resource "aws_iam_policy" "main-ip" {
     }
   ]
 }
-EOF
+POLICY
 
 }
 
@@ -77,7 +77,7 @@ resource "aws_iam_policy" "main-iam" {
   path = "/"
   description = "${local.name} SSH IAM Policy"
 
-  policy = <<EOF
+  policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -94,7 +94,7 @@ resource "aws_iam_policy" "main-iam" {
     }
   ]
 }
-EOF
+POLICY
 
 }
 

@@ -40,7 +40,7 @@ resource "aws_iam_policy" "main-usecase" {
   path        = "/"
   description = "${var.name}-usecase Policy"
 
-  policy      = <<EOF
+  policy      = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -56,7 +56,7 @@ resource "aws_iam_policy" "main-usecase" {
     }
   ]
 }
-EOF
+POLICY
 }
 
 resource "aws_iam_role_policy_attachment" "main-usecase" {

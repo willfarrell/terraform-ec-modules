@@ -92,7 +92,7 @@ POLICY
 
 resource "aws_iam_policy" "app" {
   name   = "${local.name}-ecs-task-app-policy"
-  policy = <<EOF
+  policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -105,11 +105,11 @@ resource "aws_iam_policy" "app" {
     }
   ]
 }
-EOF
+POLICY
 }
 
 resource "aws_iam_role_policy_attachment" "app" {
-  role       = "${aws_iam_role.app.name}"
+  role       = "${aws_iam_role.app.name}"e
   policy_arn = "${aws_iam_policy.app.arn}"
 }
 
@@ -134,3 +134,19 @@ resource "aws_iam_role_policy_attachment" "app" {
 - **iam_execution_role_name:** IAM task execution role name to allow extending of the role
 - **iam_execution_role_arn:** IAM task execution role arn to allow extending of the role
 - **billing_suggestion:** comments to improve billing cost
+
+TODO
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": [
+        "${var.assume_role_arn}"
+      ]
+    }
+  ]
+}
+POLICY
