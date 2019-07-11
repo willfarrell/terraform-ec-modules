@@ -16,24 +16,15 @@ Before using this terraform module, the "ec2" AMIs need to be created in all req
 ### Module
 ```hcl-terraform
 module "ec2" {
-  source            = "git@github.com:tesera/terraform-modules//ec2"
+  source            = "git@github.com:willfarrell/terraform-ec-modules//ec2?ref=v0.0.1"
   name              = "${local.name}-usecase"
-  vpc_id            = "${module.vpc.id}"
-  subnet_ids        = "${module.vpc.private_subnet_ids}"
-  image_id          = "${local.image_id}"
-  user_data          = "${data.template_file.main-userdata.rendered}"
-}
-```
+  vpc_id            = module.vpc.id
+  subnet_ids        = module.vpc.private_subnet_ids
+  image_id          = local.image_id
+  user_data         = templatefile("${path.module}/user_data.sh", {
+                      REGION          = local.region
+                    })
 
-### Create custom userdata
-```hcl-terraform
-data "template_file" "main-userdata" {
-  template = "${file("${path.module}/userdata.sh")}"
-
-  vars {
-    REGION          = "${local.region}"
-  }
-}
 ```
 
 ### Add custom policy
@@ -63,8 +54,8 @@ POLICY
 }
 
 resource "aws_iam_role_policy_attachment" "main-usecase" {
-  role       = "${module.ec2.iam_role_name}"
-  policy_arn = "${aws_iam_policy.main-ecs.arn}"
+  role       = module.ec2.iam_role_name
+  policy_arn = aws_iam_policy.main-ecs.arn
 }
 ```
 

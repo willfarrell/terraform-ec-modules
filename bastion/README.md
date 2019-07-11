@@ -24,15 +24,15 @@ Before using this terraform module, the "bastion" and "ec2" AMIs need to be crea
 ### Module
 ```hcl-terraform
 module "bastion" {
-  source            = "git@github.com:tesera/terraform-modules//bastion?ref=v0.1.3"
-  name              = "${local.workspace["name"]}"
-  instance_type     = "${local.workspace["bastion_instance_type"]}"
-  vpc_id            = "${module.vpc.id}"
-  network_acl_id    = "${module.vpc.network_acl_id}"
-  public_subnet_ids = "${module.vpc.public_subnet_ids}"
-  iam_user_groups   = "${local.workspace["bastion_user_group"]}"
-  iam_sudo_groups   = "${local.workspace["bastion_sudo_group"]}"
-  assume_role_arn   = "${element(matchkeys(data.terraform_remote_state.master.bastion_role_arns, keys(data.terraform_remote_state.master.sub_accounts), list(terraform.workspace)),0)}"
+  source            = "git@github.com:willfarrell/terraform-ec-modules//bastion?ref=v0.0.1"
+  name              = local.workspace["name"]
+  instance_type     = local.workspace["bastion_instance_type"]
+  vpc_id            = module.vpc.id
+  network_acl_id    = module.vpc.network_acl_id
+  public_subnet_ids = module.vpc.public_subnet_ids
+  iam_user_groups   = local.workspace["bastion_user_group"]
+  iam_sudo_groups   = local.workspace["bastion_sudo_group"]
+  assume_role_arn   = matchkeys(data.terraform_remote_state.master.bastion_role_arns, keys(data.terraform_remote_state.master.sub_accounts), list(local.workspace["env"]))[0]
 }
 ```
 

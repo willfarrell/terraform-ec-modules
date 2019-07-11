@@ -23,10 +23,10 @@ Before using this terraform module, the "ec2" and "ecs" AMIs need to be created 
 ### Module
 ```hcl-terraform
 module "ecs" {
-  source            = "git@github.com:tesera/terraform-modules//ecs?ref=v0.3.0"
-  name              = "${local.name}"
-  vpc_id            = "${module.vpc.id}"
-  private_subnet_ids = ["${module.vpc.private_subnet_ids}"]
+  source            = "git@github.com:willfarrell/terraform-ec-modules//ecs?ref=v0.3.0"
+  name              = local.name
+  vpc_id            = module.vpc.id
+  private_subnet_ids = module.vpc.private_subnet_ids
 }
 
 # Logging
@@ -43,9 +43,9 @@ resource "aws_ecs_task_definition" "app" {
   family                   = "${local.name}-ecs-app"
   requires_compatibilities = [
     "EC2"]
-  cpu                      = "${var.docker_cpu}"
-  task_role_arn            = "${aws_iam_role.app.arn}"
-  execution_role_arn       = "${module.ecs.iam_execution_role_arn}"
+  cpu                      = var.docker_cpu
+  task_role_arn            = aws_iam_role.app.arn
+  execution_role_arn       = module.ecs.iam_execution_role_arn
   container_definitions = <<DEFINITION
 [
   {
@@ -109,8 +109,8 @@ POLICY
 }
 
 resource "aws_iam_role_policy_attachment" "app" {
-  role       = "${aws_iam_role.app.name}"e
-  policy_arn = "${aws_iam_policy.app.arn}"
+  role       = aws_iam_role.app.name
+  policy_arn = aws_iam_policy.app.arn
 }
 
 ```
