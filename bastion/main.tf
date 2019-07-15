@@ -13,7 +13,7 @@ module "ec2" {
   source           = "../base"
   name             = local.name
   vpc_id           = var.vpc_id
-  subnet_ids       = [var.public_subnet_ids]
+  subnet_ids       = var.public_subnet_ids
   subnet_public    = "true"
   image_id         = local.image_id
   instance_type    = var.instance_type
