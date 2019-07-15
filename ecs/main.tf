@@ -4,8 +4,7 @@ resource "aws_ecs_cluster" "main" {
 
 module "ec2" {
   source                 = "../base"
-  // TODO ["ec2","ecs"]
-  iam_service            = "ec2"
+  iam_service            = ["ec2","ecs"]
   name                   = local.name
   vpc_id                 = var.vpc_id
   subnet_ids             = var.private_subnet_ids

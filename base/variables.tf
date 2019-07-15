@@ -64,7 +64,7 @@ variable "efs_security_group_ids" {
 }
 
 variable "iam_service" {
-  type    = string
-  default = "ec2"
+  type    = list(string)
+  default = ["ec2"]
 }
 

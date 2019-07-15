@@ -39,5 +39,6 @@ locals {
   max_size         = var.max_size
   min_size         = var.min_size
   desired_capacity = var.desired_capacity
+  services = split(",","${join(".amazonaws.com,",var.iam_service)}.amazonaws.com")
 }
 
