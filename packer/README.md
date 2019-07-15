@@ -23,6 +23,8 @@ To create the AMIs, go to the respective sub-folder, edit the `variables.json`, 
 packer build -var-file=variables.json ami.json
 ```
 
+See https://www.packer.io/docs/builders/amazon-ebs.html for detailed options for `ami.json`.
+
 ## Input - these are located in variables.json
 - **profile** the profile to use in the shared credentials file for AWS. 
 - **ami_regions:** a list of regions to copy the AMI to. Tags and attributes are copied along with the AMI. 
