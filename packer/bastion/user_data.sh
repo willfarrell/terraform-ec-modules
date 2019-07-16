@@ -114,3 +114,6 @@ sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/late
 
 echo "***** Update *****"
 yum update -y
+
+echo "***** Services *****"
+systemctl list-unit-files --state=enabled

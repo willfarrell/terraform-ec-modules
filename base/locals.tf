@@ -17,7 +17,7 @@ data "aws_ami" "main" {
     ]
   }
 
-  owners = ["amazon"]
+  owners = [var.ami_account_id]
 }
 
 module "defaults" {

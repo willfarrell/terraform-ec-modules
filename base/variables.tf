@@ -68,3 +68,7 @@ variable "iam_service" {
   default = ["ec2"]
 }
 
+variable "ami_account_id" {
+  type = string
+  default = "amazon"
+}

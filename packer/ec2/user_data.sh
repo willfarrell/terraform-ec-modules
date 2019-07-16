@@ -93,3 +93,9 @@ yum install -y amazon-efs-utils
 
 # TODO setup av
 # https://www.centosblog.com/how-to-install-clamav-and-configure-daily-scanning-on-centos/
+
+echo "***** Update *****"
+yum update -y
+
+echo "***** Services *****"
+systemctl list-unit-files --state=enabled

@@ -99,6 +99,7 @@ session_name = ${name}-${workspace}
 - **max_size:** auto-scaling - max instance count [Default: 1]
 - **desired_capacity:** auto-scaling - desired instance count [Default: 1]
 - **key_name:** name of root ssh key, for testing only [Default: none]
+- **ami_account_id:** account id of the AMI [Default: self]
 
 ## Output
 - **security_group_id:** security group applied, add to ingress on private instance security group

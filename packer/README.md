@@ -35,3 +35,5 @@ See https://www.packer.io/docs/builders/amazon-ebs.html for detailed options for
 Along with the entire output from running the provisioning commands at the end of successful execution the AMI ids in all regions are displayed.
 
 
+## Notes:
+- `encrypt_boot:true` will prevent the AMI from being shared with other accounts.

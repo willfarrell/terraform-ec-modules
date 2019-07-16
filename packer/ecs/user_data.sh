@@ -101,6 +101,10 @@ echo "***** Status Check *****"
 service docker status
 systemctl status ecs
 systemctl status amazon-ssm-agent
-service awslogs status
+systemctl status awslogsd
 
+echo "***** Update *****"
+yum update -y
 
+echo "***** Services *****"
+systemctl list-unit-files --state=enabled

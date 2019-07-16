@@ -51,3 +51,7 @@ variable "iam_sudo_groups" {
 variable "assume_role_arn" {
 }
 
+variable "ami_account_id" {
+  type = string
+  default = "self"
+}

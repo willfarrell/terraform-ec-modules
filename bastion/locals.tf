@@ -18,7 +18,7 @@ data "aws_ami" "main" {
   }
 
   owners = [
-    "self",
+    var.ami_account_id
   ]
 }
 

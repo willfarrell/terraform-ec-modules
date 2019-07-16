@@ -56,3 +56,8 @@ variable "key_name" {
   default = ""
 }
 
+variable "ami_account_id" {
+  type = string
+  default = "self"
+}
+

@@ -131,12 +131,14 @@ chmod +x /etc/init.d/configure-nat
 chkconfig --add configure-nat 
 chkconfig configure-nat on
 
-echo "***** Update *****"
-yum update -y
-
 # TODO apply other CIS changes
 # or swap out base image for https://aws.amazon.com/marketplace/pp/B078TPXMH2?qid=1530714745994&sr=0-1&ref_=srh_res_product_title
 
 # TODO setup av
 # https://www.centosblog.com/how-to-install-clamav-and-configure-daily-scanning-on-centos/
 
+echo "***** Update *****"
+yum update -y
+
+echo "***** Services *****"
+systemctl list-unit-files --state=enabled

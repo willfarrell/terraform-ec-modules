@@ -125,6 +125,7 @@ resource "aws_iam_role_policy_attachment" "app" {
 - **desired_capacity:** auto-scaling - desired instance count [Default: 2]
 - **efs_ids:** list of EFS IDs
 - **efs_security_group_ids:** list of EFS security groups
+- **ami_account_id:** account id of the AMI [Default: self]
 
 ## Output
 - **name:** ecs cluster name
