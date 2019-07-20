@@ -10,14 +10,14 @@ resource "aws_eip" "main" {
 }
 
 module "ec2" {
-  source           = "../base"
-  name             = local.name
-  vpc_id           = var.vpc_id
-  subnet_ids       = var.public_subnet_ids
-  subnet_public    = "true"
-  image_id         = local.image_id
-  instance_type    = var.instance_type
-  user_data        = templatefile("${path.module}/user_data.sh", {
+  source        = "../base"
+  name          = local.name
+  vpc_id        = var.vpc_id
+  subnet_ids    = var.public_subnet_ids
+  subnet_public = "true"
+  image_id      = local.image_id
+  instance_type = var.instance_type
+  user_data = templatefile("${path.module}/user_data.sh", {
     EIP_ID                = aws_eip.main.id
     IAM_AUTHORIZED_GROUPS = var.iam_user_groups
     SUDOERS_GROUPS        = var.iam_sudo_groups
@@ -99,52 +99,52 @@ POLICY
 }
 
 resource "aws_iam_role_policy_attachment" "main-iam" {
-role       = module.ec2.iam_role_name
-policy_arn = aws_iam_policy.main-iam.arn
+  role       = module.ec2.iam_role_name
+  policy_arn = aws_iam_policy.main-iam.arn
 }
 
 # ACL
 resource "aws_network_acl_rule" "ingress_ssh_public_ipv4" {
-network_acl_id = var.network_acl_id
-rule_number    = var.acl_rule_number
-egress         = false
-protocol       = "tcp"
-rule_action    = "allow"
-cidr_block     = "0.0.0.0/0"
-from_port      = 22
-to_port        = 22
+  network_acl_id = var.network_acl_id
+  rule_number    = var.acl_rule_number
+  egress         = false
+  protocol       = "tcp"
+  rule_action    = "allow"
+  cidr_block     = "0.0.0.0/0"
+  from_port      = 22
+  to_port        = 22
 }
 
 resource "aws_network_acl_rule" "ingress_ssh_public_ipv6" {
-network_acl_id  = var.network_acl_id
-rule_number     = var.acl_rule_number + 1
-egress          = false
-protocol        = "tcp"
-rule_action     = "allow"
-ipv6_cidr_block = "::/0"
-from_port       = 22
-to_port         = 22
+  network_acl_id  = var.network_acl_id
+  rule_number     = var.acl_rule_number + 1
+  egress          = false
+  protocol        = "tcp"
+  rule_action     = "allow"
+  ipv6_cidr_block = "::/0"
+  from_port       = 22
+  to_port         = 22
 }
 
 resource "aws_network_acl_rule" "egress_ssh_public_ipv4" {
-network_acl_id = var.network_acl_id
-rule_number    = var.acl_rule_number
-egress         = true
-protocol       = "tcp"
-rule_action    = "allow"
-cidr_block     = "0.0.0.0/0"
-from_port      = 22
-to_port        = 22
+  network_acl_id = var.network_acl_id
+  rule_number    = var.acl_rule_number
+  egress         = true
+  protocol       = "tcp"
+  rule_action    = "allow"
+  cidr_block     = "0.0.0.0/0"
+  from_port      = 22
+  to_port        = 22
 }
 
 resource "aws_network_acl_rule" "egress_ssh_public_ipv6" {
-network_acl_id  = var.network_acl_id
-rule_number     = var.acl_rule_number + 1
-egress          = true
-protocol        = "tcp"
-rule_action     = "allow"
-ipv6_cidr_block = "::/0"
-from_port       = 22
-to_port         = 22
+  network_acl_id  = var.network_acl_id
+  rule_number     = var.acl_rule_number + 1
+  egress          = true
+  protocol        = "tcp"
+  rule_action     = "allow"
+  ipv6_cidr_block = "::/0"
+  from_port       = 22
+  to_port         = 22
 }
 

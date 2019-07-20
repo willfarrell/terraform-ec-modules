@@ -52,6 +52,6 @@ variable "assume_role_arn" {
 }
 
 variable "ami_account_id" {
-  type = string
+  type    = string
   default = "self"
 }

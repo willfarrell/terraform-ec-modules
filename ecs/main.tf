@@ -3,14 +3,14 @@ resource "aws_ecs_cluster" "main" {
 }
 
 module "ec2" {
-  source                 = "../base"
-  iam_service            = ["ec2","ecs"]
-  name                   = local.name
-  vpc_id                 = var.vpc_id
-  subnet_ids             = var.private_subnet_ids
-  image_id               = local.image_id
-  instance_type          = local.instance_type
-  user_data              = templatefile("${path.module}/user_data.sh", {
+  source        = "../base"
+  iam_service   = ["ec2", "ecs"]
+  name          = local.name
+  vpc_id        = var.vpc_id
+  subnet_ids    = var.private_subnet_ids
+  image_id      = local.image_id
+  instance_type = local.instance_type
+  user_data = templatefile("${path.module}/user_data.sh", {
     ECS_CLUSTER = aws_ecs_cluster.main.name
   })
   min_size               = local.min_size
@@ -80,13 +80,13 @@ POLICY
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonECSServiceRolePolicy" {
-  role       = module.ec2.iam_role_name
+  role = module.ec2.iam_role_name
   policy_arn = aws_iam_policy.AmazonECSServiceRolePolicy.arn
 }
 
 # https://docs.aws.amazon.com/AmazonECS/latest/userguide/task_execution_IAM_role.html
 resource "aws_iam_role" "task_execution" {
-  name               = "${local.name}-AmazonECSTaskExecutionRole"
+  name = "${local.name}-AmazonECSTaskExecutionRole"
   assume_role_policy = <<POLICY
 {
   "Version": "2012-10-17",

@@ -69,6 +69,6 @@ variable "iam_service" {
 }
 
 variable "ami_account_id" {
-  type = string
+  type    = string
   default = "amazon"
 }
