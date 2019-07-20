@@ -4,7 +4,7 @@ resource "aws_eip" "main" {
   tags = merge(
     local.tags,
     {
-      "Name" = local.name
+      Name = local.name
     }
   )
 }
