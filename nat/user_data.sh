@@ -9,7 +9,7 @@ yum update -y
 pip install --upgrade awscli
 
 echo "***** Setup Networking Route Table *****"
-aws ec2 --region $REGION delete-route --destination-cidr-block 0.0.0.0/0 --route-table-id ${ROUTE_TABLE_ID}
-aws ec2 --region $REGION delete-route --destination-cidr-block ::/0 --route-table-id ${ROUTE_TABLE_ID}
-aws ec2 --region $REGION create-route --destination-cidr-block 0.0.0.0/0 --route-table-id ${ROUTE_TABLE_ID} --instance-id $INSTANCE_ID
-aws ec2 --region $REGION create-route --destination-cidr-block ::/0 --route-table-id ${ROUTE_TABLE_ID} --instance-id $INSTANCE_ID
+aws ec2 --region ${REGION} delete-route --destination-cidr-block 0.0.0.0/0 --route-table-id ${ROUTE_TABLE_ID}
+aws ec2 --region ${REGION} delete-route --destination-cidr-block ::/0 --route-table-id ${ROUTE_TABLE_ID}
+aws ec2 --region ${REGION} create-route --destination-cidr-block 0.0.0.0/0 --route-table-id ${ROUTE_TABLE_ID} --instance-id $INSTANCE_ID
+aws ec2 --region ${REGION} create-route --destination-cidr-block ::/0 --route-table-id ${ROUTE_TABLE_ID} --instance-id $INSTANCE_ID
