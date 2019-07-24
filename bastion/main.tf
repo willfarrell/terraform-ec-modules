@@ -26,6 +26,9 @@ module "ec2" {
   min_size         = local.min_size
   max_size         = local.max_size
   desired_capacity = local.desired_capacity
+
+  # Debug only
+  #key_name = var.key_name
 }
 
 # extend sg

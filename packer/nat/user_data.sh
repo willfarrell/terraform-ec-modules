@@ -93,6 +93,10 @@ echo "***** Setup Inspector Agent *****"
 curl -O https://inspector-agent.amazonaws.com/linux/latest/install
 bash install
 
+echo "***** Setup SSM Agent *****"
+# https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-manual-agent-install.html
+sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+
 echo "***** Setup Auto-Tuning *****"
 # https://aws.amazon.com/premiumsupport/knowledge-center/vpc-nat-instance/
 # For larger instances only
@@ -130,12 +134,6 @@ EOF
 chmod +x /etc/init.d/configure-nat
 chkconfig --add configure-nat 
 chkconfig configure-nat on
-
-# TODO apply other CIS changes
-# or swap out base image for https://aws.amazon.com/marketplace/pp/B078TPXMH2?qid=1530714745994&sr=0-1&ref_=srh_res_product_title
-
-# TODO setup av
-# https://www.centosblog.com/how-to-install-clamav-and-configure-daily-scanning-on-centos/
 
 echo "***** Update *****"
 yum update -y
