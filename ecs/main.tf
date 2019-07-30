@@ -95,6 +95,7 @@ resource "aws_iam_role" "task_execution" {
       "Effect": "Allow",
       "Principal": {
         "Service": [
+          "ec2.amazonaws.com",
           "ecs-tasks.amazonaws.com"
         ]
       },
@@ -112,3 +113,28 @@ resource "aws_iam_role_policy_attachment" "task_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# Allow asumme role to pull image from another account
+resource "aws_iam_policy" "task-assume" {
+  count  = var.assume_role_arn != "" ? 1 : 0
+  name   = "${local.name}-assume-AmazonECSTaskExecutionRole"
+  policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "sts:AssumeRole",
+        "Resource": [
+          "${var.assume_role_arn}"
+        ]
+      }
+    ]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "task_execution_assume" {
+  count = var.assume_role_arn != "" ? 1 : 0
+  role = aws_iam_role.task_execution.name
+  policy_arn = aws_iam_policy.task-assume[0].arn
+}
