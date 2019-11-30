@@ -139,4 +139,4 @@ echo "***** Update *****"
 yum update -y
 
 echo "***** Services *****"
-systemctl list-unit-files --state=enabled
+#systemctl list-unit-files --state=enabled

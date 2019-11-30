@@ -2,7 +2,7 @@ resource "aws_ecr_repository" "main" {
   name = var.name
 }
 
-
+// In roles module
 # This allow a ecs in a sub account to read from ECR
 //resource "aws_iam_role" "ecr" {
 //  count = length(keys(local.sub_accounts)) : 0
@@ -32,7 +32,6 @@ resource "aws_ecr_repository" "main" {
 
 # https://docs.aws.amazon.com/AmazonECR/latest/userguide/RepositoryPolicyExamples.html#IAM_allow_other_accounts
 # TODO update principal - https://medium.com/miq-tech-and-analytics/cross-account-how-to-access-aws-container-registry-service-from-another-aws-account-using-iam-b372796ede14
-# TODO lockdown
 resource "aws_ecr_repository_policy" "main" {
   repository = aws_ecr_repository.main.name
 
@@ -43,7 +42,9 @@ resource "aws_ecr_repository_policy" "main" {
         {
             "Sid": "PullOnly",
             "Effect": "Allow",
-            "Principal": "*",
+            "Principal":{
+              "AWS": ${jsonencode(local.allowed_arns)}
+            },
             "Action": [
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchGetImage",
@@ -53,7 +54,9 @@ resource "aws_ecr_repository_policy" "main" {
         {
             "Sid": "PushOnly",
             "Effect": "Allow",
-            "Principal": "*",
+            "Principal":{
+              "AWS": ${jsonencode(local.allowed_arns)}
+            },
             "Action": [
                 "ecr:PutImage",
                 "ecr:InitiateLayerUpload",
@@ -64,7 +67,9 @@ resource "aws_ecr_repository_policy" "main" {
         {
             "Sid": "Admin",
             "Effect": "Allow",
-            "Principal": "*",
+            "Principal":{
+              "AWS": ${jsonencode(local.allowed_arns)}
+            },
             "Action": [
                 "ecr:*"
             ]
