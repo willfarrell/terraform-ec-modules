@@ -1,5 +1,9 @@
 resource "aws_ecs_cluster" "main" {
   name = local.name
+  setting {
+    name = "containerInsights"
+    value = "enabled"
+  }
 }
 
 module "ec2" {

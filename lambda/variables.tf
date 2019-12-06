@@ -27,6 +27,16 @@ variable "memory" {
   description = "1024 = 1 GB"
 }
 
+variable "provisioned_concurrecy" {
+  type = number
+  default = 0
+}
+
+variable "reserved_concurrency" {
+  type = number
+  default = -1
+}
+
 variable "security_group_ids" {
   type = list(string)
   default = []

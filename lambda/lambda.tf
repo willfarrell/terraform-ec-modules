@@ -35,18 +35,19 @@ resource "aws_s3_bucket_object" "lambda" {
 }
 
 resource "aws_lambda_function" "lambda-s3" {
-  count            = var.s3_bucket == "" ? 0 : 1
-  function_name    = "${var.prefix}-${var.name}"
-  description      = jsondecode(file("${var.source_dir}/package.json")).description
-  s3_bucket        = var.s3_bucket
-  s3_key           = aws_s3_bucket_object.lambda[0].id
-  source_code_hash = data.archive_file.lambda.output_base64sha256
-  role             = aws_iam_role.lambda.arn
-  handler          = "index.handler"
-  runtime          = "nodejs12.x"
-  memory_size      = var.memory
-  timeout          = var.timeout
-  publish          = true
+  count                          = var.s3_bucket == "" ? 0 : 1
+  function_name                  = "${var.prefix}-${var.name}"
+  description                    = jsondecode(file("${var.source_dir}/package.json")).description
+  s3_bucket                      = var.s3_bucket
+  s3_key                         = aws_s3_bucket_object.lambda[0].id
+  source_code_hash               = data.archive_file.lambda.output_base64sha256
+  role                           = aws_iam_role.lambda.arn
+  handler                        = "index.handler"
+  runtime                        = "nodejs12.x"
+  memory_size                    = var.memory
+  reserved_concurrent_executions = var.reserved_concurrency
+  timeout                        = var.timeout
+  publish                        = true
 
   vpc_config {
     subnet_ids         = var.private_subnet_ids
@@ -62,20 +63,21 @@ resource "aws_lambda_function" "lambda-s3" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  count            = var.s3_bucket == "" ? 1 : 0
-  depends_on       = [
+  count                          = var.s3_bucket == "" ? 1 : 0
+  depends_on                     = [
     data.archive_file.lambda]
-  function_name    = "${var.prefix}-${var.name}"
-  description      = jsondecode(file("${var.source_dir}/package.json")).description
-  filename         = data.archive_file.lambda.output_path
+  function_name                  = "${var.prefix}-${var.name}"
+  description                    = jsondecode(file("${var.source_dir}/package.json")).description
+  filename                       = data.archive_file.lambda.output_path
   //source_code_hash = data.archive_file.lambda.output_base64sha256
-  source_code_hash = filebase64sha256(data.archive_file.lambda.output_path)
-  role             = aws_iam_role.lambda.arn
-  handler          = "index.handler"
-  runtime          = "nodejs12.x"
-  memory_size      = var.memory
-  timeout          = var.timeout
-  publish          = true
+  source_code_hash               = filebase64sha256(data.archive_file.lambda.output_path)
+  role                           = aws_iam_role.lambda.arn
+  handler                        = "index.handler"
+  runtime                        = "nodejs12.x"
+  memory_size                    = var.memory
+  timeout                        = var.timeout
+  reserved_concurrent_executions = var.reserved_concurrency
+  publish                        = true
 
   vpc_config {
     subnet_ids         = var.private_subnet_ids
@@ -89,6 +91,22 @@ resource "aws_lambda_function" "lambda" {
     }, var.env)
   }
 }
+
+resource "aws_lambda_alias" "lambda" {
+  name             = "latest"
+  description      = "points to the latest version"
+  function_name    = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].function_name
+  function_version = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].version
+}
+
+
+resource "aws_lambda_provisioned_concurrency_config" "lambda" {
+  count                             = (var.provisioned_concurrecy == 0) ? 0 : 1
+  function_name                     = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].function_name
+  provisioned_concurrent_executions = var.provisioned_concurrecy
+  qualifier                         = aws_lambda_alias.lambda.name
+}
+
 
 resource "aws_iam_role" "lambda" {
   name               = "${var.prefix}-${var.name}-lambda-role"

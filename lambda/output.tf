@@ -1,10 +1,10 @@
 
 output "id" {
-  value = var.s3_bucket == "" ? aws_lambda_function.lambda[0].id : aws_lambda_function.lambda-s3[0].id
+  value = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].id
 }
 
 output "arn" {
-  value = var.s3_bucket == "" ? aws_lambda_function.lambda[0].arn : aws_lambda_function.lambda-s3[0].arn
+  value = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].arn
 }
 
 output "role" {

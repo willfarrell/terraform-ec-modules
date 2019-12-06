@@ -16,9 +16,14 @@ resource "aws_launch_configuration" "main" {
   # Must be true in public subnets if assigning EIP in userdata
   associate_public_ip_address = var.subnet_public
 
-  root_block_device {
-    volume_type = var.volume_type
-    volume_size = var.volume_size
+  dynamic "root_block_device" {
+    for_each = var.volume_size == 0 ? [] : [true]
+    content {
+      volume_type = var.volume_type
+      volume_size = var.volume_size
+      delete_on_termination = true
+      encrypted = true
+    }
   }
 
   lifecycle {

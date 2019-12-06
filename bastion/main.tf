@@ -27,6 +27,8 @@ module "ec2" {
   max_size         = local.max_size
   desired_capacity = local.desired_capacity
 
+  volume_size = 8
+
   # Debug only
   #key_name = var.key_name
 }

@@ -1,4 +1,5 @@
 variable "name" {
+  type = string
 }
 
 variable "default_tags" {
@@ -7,6 +8,7 @@ variable "default_tags" {
 }
 
 variable "vpc_id" {
+  type = string
 }
 
 variable "subnet_ids" {
@@ -18,6 +20,7 @@ variable "subnet_public" {
 }
 
 variable "image_id" {
+  type = string
   default = ""
 }
 
@@ -26,31 +29,38 @@ variable "instance_type" {
 }
 
 variable "key_name" {
+  type = string
   default = ""
 }
 
 variable "user_data" {
+  type = string
   default = ""
 }
 
 variable "volume_type" {
+  type = string
   default = "gp2"
 }
 
 variable "volume_size" {
-  default = "8"
+  type = number
+  default = 8
 }
 
 variable "min_size" {
-  default = "1"
+  type = number
+  default = 1
 }
 
 variable "max_size" {
-  default = "1"
+  type = number
+  default = 1
 }
 
 variable "desired_capacity" {
-  default = "1"
+  type = number
+  default = 1
 }
 
 variable "efs_ids" {

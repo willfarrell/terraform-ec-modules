@@ -28,6 +28,8 @@ module "ec2" {
   min_size         = 1
   max_size         = 1
   desired_capacity = 1
+
+  volume_size = 1
 }
 
 resource "aws_security_group" "nat" {
