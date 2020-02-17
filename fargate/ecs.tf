@@ -22,7 +22,6 @@ resource "aws_ecs_task_definition" "fargate" {
   requires_compatibilities = [
     "FARGATE"]
 
-  # Duplicate attrib
   cpu                   = var.cpu
   memory                = var.memory
   network_mode          = "awsvpc"
@@ -34,10 +33,7 @@ resource "aws_ecs_task_definition" "fargate" {
     "essential":true,
     "cpu":${var.cpu},
     "memory":${var.memory},
-    "environment":[
-      { "name": "ACCOUNT_ID", "value" : "${local.account_id}" },
-      { "name": "NODE_ENV", "value" : "${terraform.workspace}" }
-    ],
+    "environment":[${join(",", data.null_data_source.environment.*.outputs.environment)}],
     "portMappings":[],
     "mountPoints":[],
     "logConfiguration": {
@@ -59,6 +55,13 @@ resource "aws_ecs_task_definition" "fargate" {
   }
 ]
 DEFINITION
+
+  /*tags = merge(
+  local.tags,
+  {
+    Name = local.name
+  }
+  )*/
 }
 
 resource "aws_cloudwatch_log_group" "docker" {

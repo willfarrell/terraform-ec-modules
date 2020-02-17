@@ -10,7 +10,7 @@ data "null_data_source" "pairs" {
 
 locals {
   account_id = data.aws_caller_identity.current.account_id
-  pairs       = data.null_data_source.pairs.*.outputs.pairs
+  pairs       = split(",", join(",", data.null_data_source.pairs.*.outputs.pairs))
 }
 
 output "pairs" {

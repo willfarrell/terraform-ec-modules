@@ -71,3 +71,19 @@ variable "ami_account_id" {
   type    = string
   default = "self"
 }
+
+// Use format: "45 0,6 * * *" // UTC
+variable "schedule_scale_up_recurrence" {
+  type = string
+  default = ""
+}
+
+variable "schedule_scale_down_recurrence" {
+  type = string
+  default = ""
+}
+
+variable "schedule_shut_down_recurrence" {
+  type = string
+  default = ""
+}

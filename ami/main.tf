@@ -1,5 +1,5 @@
 data "aws_ami" "main" {
-  count = length(var.images)
+  count       = length(var.images)
   most_recent = true
 
   filter {
@@ -24,7 +24,7 @@ data "aws_ami" "main" {
 }
 
 resource "aws_ami_launch_permission" "main" {
-  count = length(local.pairs)
-  image_id = split("|", local.pairs[count.index])[1]
+  count      = length(local.pairs)
+  image_id   = split("|", local.pairs[count.index])[1]
   account_id = split("|", local.pairs[count.index])[0]
 }

@@ -29,6 +29,10 @@ module "ec2" {
 
   volume_size = 8
 
+  schedule_scale_up_recurrence = var.schedule_scale_up_recurrence
+  schedule_scale_down_recurrence = var.schedule_scale_down_recurrence
+  schedule_shut_down_recurrence = var.schedule_shut_down_recurrence
+
   # Debug only
   #key_name = var.key_name
 }

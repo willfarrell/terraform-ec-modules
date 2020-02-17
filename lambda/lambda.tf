@@ -49,6 +49,10 @@ resource "aws_lambda_function" "lambda-s3" {
   timeout                        = var.timeout
   publish                        = true
 
+  tracing_config {
+    mode = "Active"
+  }
+
   vpc_config {
     subnet_ids         = var.private_subnet_ids
     security_group_ids = var.security_group_ids
@@ -79,6 +83,10 @@ resource "aws_lambda_function" "lambda" {
   reserved_concurrent_executions = var.reserved_concurrency
   publish                        = true
 
+  tracing_config {
+    mode = "Active"
+  }
+
   vpc_config {
     subnet_ids         = var.private_subnet_ids
     security_group_ids = var.security_group_ids
@@ -86,10 +94,18 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables = merge({
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1 // Enable keepAlive
       ACCOUNT_ID = local.account_id
       NODE_ENV   = terraform.workspace
     }, var.env)
   }
+
+ /* tags = merge(
+  local.tags,
+  {
+    Name = local.name
+  }
+  )*/
 }
 
 resource "aws_lambda_alias" "lambda" {
@@ -126,17 +142,32 @@ data "aws_iam_policy_document" "lambda" {
         "lambda.amazonaws.com"
       ]
     }
+
   }
 }
 
+/*
+condition {
+  test     = "StringEquals"
+  values   = [local.account_id]
+  variable = "AWS:SourceAccount"
+}
+*/
+
 // Adds CloudWatch
-resource "aws_iam_role_policy_attachment" "lambda" {
+resource "aws_iam_role_policy_attachment" "cloud-watch" {
   role       = aws_iam_role.lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+// Add X-Ray
+resource "aws_iam_role_policy_attachment" "xray" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+}
+
 // Add NetworkInterface
-resource "aws_iam_role_policy_attachment" "lambda-vpc" {
+resource "aws_iam_role_policy_attachment" "vpc" {
   count      = length(var.private_subnet_ids) == 0 ? 0 : 1
   role       = aws_iam_role.lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"

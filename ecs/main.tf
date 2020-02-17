@@ -25,6 +25,10 @@ module "ec2" {
   efs_ids                = var.efs_ids
   efs_security_group_ids = var.efs_security_group_ids
   key_name               = var.key_name
+
+  schedule_scale_up_recurrence = var.schedule_scale_up_recurrence
+  schedule_scale_down_recurrence = var.schedule_scale_down_recurrence
+  schedule_shut_down_recurrence = var.schedule_shut_down_recurrence
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerServiceforEC2Role" {
