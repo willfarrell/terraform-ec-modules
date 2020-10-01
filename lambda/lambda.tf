@@ -94,18 +94,34 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables = merge({
-      AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1 // Enable keepAlive
-      ACCOUNT_ID = local.account_id
-      NODE_ENV   = terraform.workspace
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1
+      // Enable keepAlive
+      ACCOUNT_ID                          = local.account_id
+      NODE_ENV                            = terraform.workspace
     }, var.env)
   }
 
- /* tags = merge(
-  local.tags,
-  {
-    Name = local.name
+  dynamic "file_system_config" {
+    for_each = var.volumes
+    content {
+      arn = file_system_config.value["access_point_arn"]
+      local_mount_path = file_system_config.value["local_mount_path"]
+    }
   }
-  )*/
+
+//  file_system_config {
+//    arn = var.volumes[0].access_point_arn
+//    local_mount_path = var.volumes[0].file_system_path
+//  }
+
+  tags = {}
+
+  /* tags = merge(
+   local.tags,
+   {
+     Name = local.name
+   }
+   )*/
 }
 
 resource "aws_lambda_alias" "lambda" {
@@ -116,13 +132,17 @@ resource "aws_lambda_alias" "lambda" {
 }
 
 
-resource "aws_lambda_provisioned_concurrency_config" "lambda" {
-  count                             = (var.provisioned_concurrecy == 0) ? 0 : 1
-  function_name                     = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].function_name
-  provisioned_concurrent_executions = var.provisioned_concurrecy
-  qualifier                         = aws_lambda_alias.lambda.name
-}
+//resource "aws_lambda_provisioned_concurrency_config" "lambda" {
+//  count                             = (var.provisioned_concurrecy == 0) ? 0 : 1
+//  function_name                     = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].function_name
+//  provisioned_concurrent_executions = var.provisioned_concurrecy
+//  qualifier                         = aws_lambda_alias.lambda.name
+//}
 
+resource "aws_cloudwatch_log_group" "lambda" {
+  name              = "/aws/lambda/${var.prefix}-${var.name}"
+  retention_in_days = 30
+}
 
 resource "aws_iam_role" "lambda" {
   name               = "${var.prefix}-${var.name}-lambda-role"

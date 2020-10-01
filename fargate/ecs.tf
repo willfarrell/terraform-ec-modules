@@ -35,7 +35,7 @@ resource "aws_ecs_task_definition" "fargate" {
     "memory":${var.memory},
     "environment":[${join(",", data.null_data_source.environment.*.outputs.environment)}],
     "portMappings":[],
-    "mountPoints":[],
+    "mountPoints":[${join(",", data.null_data_source.mount_points.*.outputs.mount_point)}],
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
@@ -56,16 +56,31 @@ resource "aws_ecs_task_definition" "fargate" {
 ]
 DEFINITION
 
-  /*tags = merge(
-  local.tags,
-  {
-    Name = local.name
+  dynamic "volume" {
+    for_each = var.volumes
+    content {
+      name = volume.value["name"]
+      efs_volume_configuration {
+        file_system_id = volume.value["file_system_id"]
+        root_directory = volume.value["file_system_path"]
+        transit_encryption = "ENABLED"
+        dynamic "authorization_config" {
+          for_each = volume.value["access_point_id"] != "" ? [1] : []
+          content {
+            access_point_id = volume.value["access_point_id"]
+            iam             = "DISABLED" #volume.value["iam"] != "ENABLED" ? "DISABLED" : "ENABLED"
+          }
+        }
+      }
+    }
   }
-  )*/
+
+  tags = {}
 }
 
 resource "aws_cloudwatch_log_group" "docker" {
   name = "/ecs/${var.prefix}-${var.name}"
+  retention_in_days = 30
 }
 
 

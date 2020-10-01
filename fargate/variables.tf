@@ -29,6 +29,11 @@ variable "memory" {
   description = "1024 = 1 GB"
 }
 
+variable "volumes" {
+  type = list(map(string))
+  default = []
+}
+
 // Step Function Logic
 variable "result" {
   type = map(string)

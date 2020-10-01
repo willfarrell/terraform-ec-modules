@@ -27,6 +27,11 @@ variable "memory" {
   description = "1024 = 1 GB"
 }
 
+variable "volumes" {
+  type = list(map(string))
+  default = []
+}
+
 variable "provisioned_concurrecy" {
   type = number
   default = 0
