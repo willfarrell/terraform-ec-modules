@@ -12,11 +12,7 @@ variable "vpc_id" {
 variable "network_acl_id" {
 }
 
-variable "acl_rule_number" {
-  default = 22
-}
-
-variable "public_subnet_ids" {
+variable "subnet_ids" {
   type = list(string)
 }
 

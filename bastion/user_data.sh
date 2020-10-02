@@ -3,8 +3,8 @@ INSTANCE_ID=$(curl -s -m 60 http://169.254.169.254/latest/meta-data/instance-id)
 AVAILABILITY_ZONE=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
 REGION=$(echo $AVAILABILITY_ZONE | sed 's/.$//')
 
-echo "***** Attach IP [Public Subnet Only] *****"
-aws --region $REGION ec2 associate-address --instance-id $INSTANCE_ID --allocation-id ${EIP_ID}
+yum update -y
+pip install --upgrade awscli
 
 echo "***** Setup SSH via IAM *****"
 cat << EOF > /etc/aws-ec2-ssh.conf

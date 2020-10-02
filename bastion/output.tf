@@ -1,6 +1,3 @@
-output "public_ip" {
-  value = aws_eip.main.public_ip
-}
 
 # EC2 Output
 output "iam_role_name" {
