@@ -2,7 +2,6 @@
 
 echo "***** Update *****"
 yum update -y
-pip install --upgrade awscli
 
 echo "***** Setup EFS *****"
 OIFS=$IFS

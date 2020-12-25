@@ -28,6 +28,10 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
+variable "spot" {
+  default = true
+}
+
 variable "key_name" {
   type = string
   default = ""

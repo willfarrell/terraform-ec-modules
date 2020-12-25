@@ -6,6 +6,7 @@ module "ec2" {
   subnet_ids    = var.subnet_ids
   image_id      = local.image_id
   instance_type = var.instance_type
+  spot          = false # TODO remove var.spot
   user_data = templatefile("${path.module}/user_data.sh", {
     IAM_AUTHORIZED_GROUPS = var.iam_user_groups
     SUDOERS_GROUPS        = var.iam_sudo_groups

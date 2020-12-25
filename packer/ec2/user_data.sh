@@ -3,19 +3,20 @@
 echo "***** Update *****"
 yum update -y
 
-echo "***** Install pip *****"
-curl -O https://bootstrap.pypa.io/get-pip.py
-python get-pip.py
-
 echo "***** Update awscli *****"
-pip install --upgrade awscli
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+rm -rf aws
+rm awscliv2.zip
 
 echo "***** Setup CloudWatch Logging *****"
 yum install awslogs -y
 cat << EOF > /usr/local/bin/configure-awslogs.sh
 #!/usr/bin/env bash
-INSTANCE_ID=$(curl -s -m 60 http://169.254.169.254/latest/meta-data/instance-id)
-sed -i "s/{instance_id}/\$INSTANCE_ID/" /etc/awslogs/awslogs.conf
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+INSTANCE_ID=$(curl -s -m 60 -H "X-aws-ec2-metadata-token: \$TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
+sed -i "s/log_stream_name =/log_stream_name = \$INSTANCE_ID/" /etc/awslogs/awslogs.conf
 EOF
 chmod +x /usr/local/bin/configure-awslogs.sh
 sed -i '/ExecStart=/i ExecStartPre=/usr/local/bin/configure-awslogs.sh' /usr/lib/systemd/system/awslogsd.service

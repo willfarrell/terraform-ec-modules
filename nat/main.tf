@@ -17,6 +17,7 @@ module "ec2" {
   subnet_public = "true"
   image_id      = local.image_id
   instance_type = var.instance_type
+  spot          = false # TODO remove var.spot
   user_data = templatefile("${path.module}/user_data.sh", {
     BANNER                = "NAT ${var.az_name}"
     EIP_ID                = aws_eip.nat.id

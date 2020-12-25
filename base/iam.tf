@@ -20,20 +20,25 @@ resource "aws_iam_instance_profile" "main" {
   role = aws_iam_role.main.name
 }
 
-resource "aws_iam_role_policy_attachment" "main-logs" {
+resource "aws_iam_role_policy_attachment" "main-cloudwatch-logs" {
   role       = aws_iam_role.main.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 }
 
-resource "aws_iam_role_policy_attachment" "main-clowdwatch-agent-server" {
+resource "aws_iam_role_policy_attachment" "main-cloudwatch-agent" {
   role       = aws_iam_role.main.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
 resource "aws_iam_role_policy_attachment" "main-ssm-agent" {
   role       = aws_iam_role.main.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
+
+//resource "aws_iam_role_policy_attachment" "main-ssm-patch" {
+//  role       = aws_iam_role.main.name
+//  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMPatchAssociation"
+//}
 
 resource "aws_iam_role_policy_attachment" "main-xray" {
   role       = aws_iam_role.main.name

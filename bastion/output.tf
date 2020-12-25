@@ -12,3 +12,6 @@ output "billing_suggestion" {
   value = module.ec2.billing_suggestion
 }
 
+output "ami" {
+  value = data.aws_ami.main.id
+}

@@ -43,6 +43,10 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
+variable "spot" {
+  default = true
+}
+
 variable "ami_account_id" {
   type    = string
   default = "self"

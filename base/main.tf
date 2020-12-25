@@ -2,6 +2,7 @@ resource "aws_launch_configuration" "main" {
   name_prefix          = "${local.name}-"
   image_id             = local.image_id
   instance_type        = var.instance_type
+  spot_price           = var.spot ? "0.0001" : null
   key_name             = var.key_name
   iam_instance_profile = aws_iam_instance_profile.main.name
 
@@ -13,6 +14,11 @@ resource "aws_launch_configuration" "main" {
   ebs_optimized     = "false"
   enable_monitoring = "true"
 
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_put_response_hop_limit = 1
+    http_tokens                 = "required"
+  }
   # Must be true in public subnets if assigning EIP in userdata
   associate_public_ip_address = var.subnet_public
 
@@ -28,7 +34,7 @@ resource "aws_launch_configuration" "main" {
   }
 
   lifecycle {
-    create_before_destroy = "true"
+    create_before_destroy = true
   }
 }
 

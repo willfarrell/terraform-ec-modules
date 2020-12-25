@@ -7,6 +7,7 @@ module "ec2-base" {
   subnet_public          = var.subnet_public
   image_id               = var.image_id != "" ? var.image_id : data.aws_ami.main.image_id
   instance_type          = var.instance_type
+  spot                   = var.spot
   key_name               = var.key_name
   user_data              = var.user_data
   volume_type            = var.volume_type
