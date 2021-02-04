@@ -43,7 +43,7 @@ resource "aws_lambda_function" "lambda-s3" {
   source_code_hash               = data.archive_file.lambda.output_base64sha256
   role                           = aws_iam_role.lambda.arn
   handler                        = "index.handler"
-  runtime                        = "nodejs12.x"
+  runtime                        = var.runtime
   memory_size                    = var.memory
   reserved_concurrent_executions = var.reserved_concurrency
   timeout                        = var.timeout
@@ -73,11 +73,11 @@ resource "aws_lambda_function" "lambda" {
   function_name                  = "${var.prefix}-${var.name}"
   description                    = jsondecode(file("${var.source_dir}/package.json")).description
   filename                       = data.archive_file.lambda.output_path
-  //source_code_hash = data.archive_file.lambda.output_base64sha256
-  source_code_hash               = filebase64sha256(data.archive_file.lambda.output_path)
+  source_code_hash               = data.archive_file.lambda.output_base64sha256
+  //source_code_hash               = filebase64sha512(data.archive_file.lambda.output_path)
   role                           = aws_iam_role.lambda.arn
   handler                        = "index.handler"
-  runtime                        = "nodejs12.x"
+  runtime                        = var.runtime
   memory_size                    = var.memory
   timeout                        = var.timeout
   reserved_concurrent_executions = var.reserved_concurrency

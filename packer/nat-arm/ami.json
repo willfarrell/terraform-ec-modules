@@ -1,0 +1,40 @@
+{
+  "variables": {
+    "profile": "",
+    "region": "",
+    "ami_regions": "",
+    "ami_users": ""
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "profile": "{{user `profile`}}",
+      "region": "{{user `region`}}",
+      "ami_regions": "{{user `ami_regions`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "amzn2-ami-hvm-*-arm64-gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": [
+          "amazon"
+        ],
+        "most_recent": true
+      },
+      "encrypt_boot": false,
+      "instance_type": "t4g.nano",
+      "ssh_username": "ec2-user",
+      "ami_name": "amzn2-ami-hvm-{{isotime \"20060102030405\"}}-arm64-nat",
+      "ami_description": "NAT EBS",
+      "ami_users": "{{user `ami_users`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "user_data.sh",
+      "execute_command": "sudo -S env {{ .Vars }} {{ .Path }}"
+    }
+  ]
+}

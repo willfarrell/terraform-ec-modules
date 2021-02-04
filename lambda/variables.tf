@@ -60,3 +60,8 @@ variable "s3_bucket" {
   type = string
   default = ""
 }
+
+variable "runtime" {
+  type = string
+  default = "nodejs14.x"
+}
