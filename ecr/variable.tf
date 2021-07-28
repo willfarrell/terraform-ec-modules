@@ -2,6 +2,16 @@ variable "name" {
   type = string
 }
 
+variable "mutability" {
+  type = string
+  default = "MUTABLE"
+}
+
+variable "scanning" {
+  type = bool
+  default = true
+}
+
 variable "sub_accounts" {
   type = map(string)
 
