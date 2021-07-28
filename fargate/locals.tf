@@ -4,27 +4,16 @@ data "aws_caller_identity" "current" {}
 locals {
   account_id = data.aws_caller_identity.current.account_id
   aws_region = data.aws_region.current.name
+  ecs_environment = jsonencode([for key in keys(local.env): jsondecode("{\"name\":\"${key}\",\"value\":\"${local.env[key]}\"}")])
+  ecs_mount_points = jsonencode([for volume in var.volumes: jsondecode("{\"containerPath\":\"${volume.container_path}\",\"sourceVolume\":\"${volume.name}\"}")])
   env        = merge({
     ACCOUNT_ID                          = local.account_id
     AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1
+    # https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-nodejs-configuration.html#xray-sdk-nodejs-configuration-envvars
+    AWS_XRAY_CONTEXT_MISSING            = "LOG_ERROR"
+    #AWS_XRAY_DAEMON_ADDRESS             = "0.0.0.0:2000" # Not required because running with awsvpc network mode
+    AWS_XRAY_DEBUG_MODE                 = "TRUE"
+
     NODE_ENV                            = terraform.workspace
   }, var.env)
 }
-
-data "null_data_source" "environment" {
-  count  = length(keys(local.env))
-  inputs = {
-    environment = "{\"name\":\"${keys(local.env)[count.index]}\",\"value\":\"${values(local.env)[count.index]}\"}"
-  }
-}
-
-data "null_data_source" "mount_points" {
-  count  = length(var.volumes)
-  inputs = {
-    mount_point = "{\"containerPath\":\"${var.volumes[count.index].container_path}\",\"sourceVolume\":\"${var.volumes[count.index].name}\"}"
-  }
-}
-
-/*
-
-*/

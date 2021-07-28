@@ -63,3 +63,8 @@ variable "env" {
   type = map(string)
   default = {}
 }
+
+variable "xray"{
+  type = bool
+  default = true
+}

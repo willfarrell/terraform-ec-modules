@@ -15,6 +15,7 @@
 //  //  }
 //}
 
+
 resource "aws_ecs_task_definition" "fargate" {
   family                   = "${var.prefix}-${var.name}"
   task_role_arn            = aws_iam_role.docker.arn
@@ -24,18 +25,49 @@ resource "aws_ecs_task_definition" "fargate" {
 
   cpu                   = var.cpu
   memory                = var.memory
-  network_mode          = "awsvpc"
+  network_mode          = "awsvpc"           // ${join(",", data.null_data_source.environment.*.outputs.environment)}
+
+  // TODO add --local-mode to xray CMD to quite `[Error] Get instance id metadata failed: RequestError: send request failed`
+  # https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-ecs.html
+  # Setting `--local-mode` quites the error message `[Error] Get instance id metadata failed: RequestError: send request failed`
   container_definitions = <<DEFINITION
 [
+  {
+    "name": "xray-daemon"  ,
+    "image": "public.ecr.aws/xray/aws-xray-daemon:3.x",
+    "commnad": "--local-mode",
+    "cpu": 32,
+    "memory": 128,
+    "environment": [
+      {
+        "name": "AWS_REGION",
+        "value": "${local.aws_region}"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group" : "/ecs/${var.prefix}-${var.name}",
+        "awslogs-region": "${local.aws_region}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    },
+    "portMappings": [
+      {
+        "protocol": "udp",
+        "containerPort": 2000
+      }
+    ]
+  },
   {
     "name": "${var.prefix}-${var.name}",
     "image": "${var.image}",
     "essential":true,
-    "cpu":${var.cpu},
-    "memory":${var.memory},
-    "environment":[${join(",", data.null_data_source.environment.*.outputs.environment)}],
+    "cpu":${parseint(var.cpu, 10) - 32},
+    "memory":${parseint(var.memory, 10) - 128},
+    "environment":${local.ecs_environment},
     "portMappings":[],
-    "mountPoints":[${join(",", data.null_data_source.mount_points.*.outputs.mount_point)}],
+    "mountPoints":${local.ecs_mount_points},
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
@@ -55,6 +87,7 @@ resource "aws_ecs_task_definition" "fargate" {
   }
 ]
 DEFINITION
+  # Add in sidecar x-ray container
 
   dynamic "volume" {
     for_each = var.volumes
@@ -100,6 +133,11 @@ resource "aws_iam_role" "docker" {
   ]
 }
 ROLE
+}
+
+resource "aws_iam_role_policy_attachment" "main-docker-AWSXRayDaemonWriteAccess" {
+  role       = aws_iam_role.docker.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
 }
 
 resource "aws_iam_role" "docker-execution" {
