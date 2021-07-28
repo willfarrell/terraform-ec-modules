@@ -1,26 +1,19 @@
-resource "null_resource" "lambda_build" {
-
-  triggers = {
-    source_dir = base64sha256(var.source_dir)
-  }
-
-  provisioner "local-exec" {
-    command = "cd ${var.source_dir} && npm ci --production --no-audit"
-  }
-}
-
-# Workaround https://github.com/terraform-providers/terraform-provider-archive/issues/11#issuecomment-368721675
-data "null_data_source" "wait_for_build" {
-  inputs = {
-    lambda_build_id = null_resource.lambda_build.id
-    source_dir      = var.source_dir
-  }
-}
+//resource "null_resource" "lambda_build" {
+//
+//  triggers = {
+//    source_dir = filebase64sha256("${var.source_dir}/package.json")
+//  }
+//
+//  provisioner "local-exec" {
+//    command = "cd ${var.source_dir} && npm ci --production --no-audit"
+//  }
+//}
 
 data "archive_file" "lambda" {
+  #depends_on  = [null_resource.lambda_build]
   type        = "zip"
-  source_dir  = data.null_data_source.wait_for_build.outputs["source_dir"]
-  #source_dir = var.source_dir # will trigger evertime
+  #source_dir  = data.null_data_source.wait_for_build.outputs["source_dir"]
+  source_dir  = var.source_dir # will trigger ever time?
   output_path = "${var.source_dir}-${var.prefix}.zip"
 }
 
@@ -35,12 +28,14 @@ resource "aws_s3_bucket_object" "lambda" {
 }
 
 resource "aws_lambda_function" "lambda-s3" {
+  depends_on                     = [aws_s3_bucket_object.lambda]
   count                          = var.s3_bucket == "" ? 0 : 1
   function_name                  = "${var.prefix}-${var.name}"
-  description                    = jsondecode(file("${var.source_dir}/package.json")).description
+  description                    = local.description
   s3_bucket                      = var.s3_bucket
   s3_key                         = aws_s3_bucket_object.lambda[0].id
   source_code_hash               = data.archive_file.lambda.output_base64sha256
+  //source_code_hash               = filebase64sha256(data.archive_file.lambda.output_path)
   role                           = aws_iam_role.lambda.arn
   handler                        = "index.handler"
   runtime                        = var.runtime
@@ -48,6 +43,10 @@ resource "aws_lambda_function" "lambda-s3" {
   reserved_concurrent_executions = var.reserved_concurrency
   timeout                        = var.timeout
   publish                        = true
+
+  dead_letter_config {
+    target_arn = var.dead_letter_arn
+  }
 
   tracing_config {
     mode = "Active"
@@ -64,6 +63,16 @@ resource "aws_lambda_function" "lambda-s3" {
       NODE_ENV   = terraform.workspace
     }, var.env)
   }
+
+  # Workaround: https://github.com/hashicorp/terraform-provider-aws/issues/9786
+  lifecycle {
+    ignore_changes = [
+      filename,
+      last_modified,
+      qualified_arn,
+      version,
+    ]
+  }
 }
 
 resource "aws_lambda_function" "lambda" {
@@ -73,8 +82,8 @@ resource "aws_lambda_function" "lambda" {
   function_name                  = "${var.prefix}-${var.name}"
   description                    = jsondecode(file("${var.source_dir}/package.json")).description
   filename                       = data.archive_file.lambda.output_path
-  source_code_hash               = data.archive_file.lambda.output_base64sha256
-  //source_code_hash               = filebase64sha512(data.archive_file.lambda.output_path)
+  //source_code_hash               = data.archive_file.lambda.output_base64sha256
+  source_code_hash               = filebase64sha512(data.archive_file.lambda.output_path)
   role                           = aws_iam_role.lambda.arn
   handler                        = "index.handler"
   runtime                        = var.runtime
@@ -82,6 +91,10 @@ resource "aws_lambda_function" "lambda" {
   timeout                        = var.timeout
   reserved_concurrent_executions = var.reserved_concurrency
   publish                        = true
+
+  dead_letter_config {
+    target_arn = var.dead_letter_arn
+  }
 
   tracing_config {
     mode = "Active"
@@ -122,14 +135,25 @@ resource "aws_lambda_function" "lambda" {
      Name = local.name
    }
    )*/
+
+  # Workaround: https://github.com/hashicorp/terraform-provider-aws/issues/9786
+  lifecycle {
+    ignore_changes = [
+      filename,
+      last_modified,
+      qualified_arn,
+      version,
+    ]
+  }
 }
 
-resource "aws_lambda_alias" "lambda" {
-  name             = "latest"
-  description      = "points to the latest version"
-  function_name    = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].function_name
-  function_version = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].version
-}
+// TODO test if latest is needed
+//resource "aws_lambda_alias" "lambda" {
+//  name             = "latest"
+//  description      = "points to the latest version"
+//  function_name    = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].function_name
+//  function_version = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].version
+//}
 
 
 //resource "aws_lambda_provisioned_concurrency_config" "lambda" {

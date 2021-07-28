@@ -17,13 +17,13 @@ variable "source_dir" {
 }
 
 variable "timeout" {
-  type        = string
-  default     = "30"
+  type = string
+  default = "30"
   description = "1024 = 1vCPU"
 }
 variable "memory" {
-  type        = string
-  default     = "128"
+  type = string
+  default = "128"
   description = "1024 = 1 GB"
 }
 
@@ -51,6 +51,11 @@ variable "private_subnet_ids" {
   default = []
 }
 
+variable "dead_letter_arn" {
+  description = "sns or sqs arn. need to apply sns:Publish or sqs:SendMessage to iam"
+  type = string
+}
+
 variable "env" {
   type = map(string)
   default = {}
@@ -64,4 +69,9 @@ variable "s3_bucket" {
 variable "runtime" {
   type = string
   default = "nodejs14.x"
+}
+
+variable "description" {
+  type = string
+  default = ""
 }
