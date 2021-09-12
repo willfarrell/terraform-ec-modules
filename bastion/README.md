@@ -32,7 +32,7 @@ module "bastion" {
   public_subnet_ids = module.vpc.public_subnet_ids
   iam_user_groups   = local.workspace["bastion_user_group"]
   iam_sudo_groups   = local.workspace["bastion_sudo_group"]
-  assume_role_arn   = matchkeys(data.terraform_remote_state.master.bastion_role_arns, keys(data.terraform_remote_state.master.sub_accounts), list(local.workspace["env"]))[0]
+  assume_role_arn   = matchkeys(data.terraform_remote_state.master.bastion_role_arns, keys(data.terraform_remote_state.master.sub_accounts), [local.workspace["env"]])[0]
 }
 ```
 
