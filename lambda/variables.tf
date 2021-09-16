@@ -56,6 +56,11 @@ variable "dead_letter_arn" {
   type = string
 }
 
+variable "code_signing_config_arn" {
+  description = ""
+  type = string
+}
+
 variable "env" {
   type = map(string)
   default = {}

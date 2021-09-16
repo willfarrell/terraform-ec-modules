@@ -92,6 +92,8 @@ resource "aws_lambda_function" "lambda" {
   reserved_concurrent_executions = var.reserved_concurrency
   publish                        = true
 
+  code_signing_config_arn        = var.code_signing_config_arn
+
   dead_letter_config {
     target_arn = var.dead_letter_arn
   }
@@ -121,11 +123,6 @@ resource "aws_lambda_function" "lambda" {
       local_mount_path = file_system_config.value["local_mount_path"]
     }
   }
-
-//  file_system_config {
-//    arn = var.volumes[0].access_point_arn
-//    local_mount_path = var.volumes[0].file_system_path
-//  }
 
   tags = {}
 
