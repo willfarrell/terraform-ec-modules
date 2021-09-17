@@ -1,14 +1,20 @@
 
 output "id" {
-  value = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].id
+  value = aws_lambda_function.lambda.id
 }
 
 output "arn" {
-  value = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].arn
+  value = aws_lambda_function.lambda.arn
 }
 
 output "invoke_arn" {
-  value = concat(aws_lambda_function.lambda, aws_lambda_function.lambda-s3)[0].invoke_arn
+  description = "For API Gateway"
+  value = aws_lambda_function.lambda.invoke_arn
+}
+
+output "qualified_arn" {
+  description = "For CloudFront"
+  value = aws_lambda_function.lambda.qualified_arn
 }
 
 output "role" {

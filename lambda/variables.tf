@@ -3,8 +3,17 @@ variable "prefix" {
   default = "default"
 }
 
+variable "edge" {
+  type = bool
+  default = false
+}
 variable "name" {
   type = string
+}
+
+variable "description" {
+  type = string
+  default = null
 }
 
 variable "vpc_id" {
@@ -51,9 +60,11 @@ variable "private_subnet_ids" {
   default = []
 }
 
+# Lambda@Edge Doesn't support DQL
 variable "dead_letter_arn" {
   description = "sns or sqs arn. need to apply sns:Publish or sqs:SendMessage to iam"
   type = string
+  default = null
 }
 
 variable "code_signing_config_arn" {
@@ -61,6 +72,13 @@ variable "code_signing_config_arn" {
   type = string
 }
 
+variable "signer_profile_name" {
+  type = string
+}
+
+# Lambda@Edge Doesn't support process.env
+//ACCOUNT_ID = local.account_id
+//NODE_ENV   = terraform.workspace
 variable "env" {
   type = map(string)
   default = {}
@@ -68,15 +86,9 @@ variable "env" {
 
 variable "s3_bucket" {
   type = string
-  default = ""
 }
 
 variable "runtime" {
   type = string
   default = "nodejs14.x"
-}
-
-variable "description" {
-  type = string
-  default = ""
 }
