@@ -2,7 +2,7 @@ data "archive_file" "lambda" {
   type = "zip"
   source_dir = var.source_dir
   excludes = var.excludes
-  output_path = "${var.name}.zip"
+  output_path = "/tmp/${var.name}.zip"
 }
 
 resource "aws_s3_bucket_object" "lambda" {
@@ -152,10 +152,11 @@ condition {
 }
 */
 
-
-
-
-
+// Add Lambda Dead Letter Queue
+resource "aws_iam_role_policy_attachment" "dlq" {
+  role = aws_iam_role.lambda.name
+  policy_arn = var.dead_letter_arn
+}
 
 // Adds CloudWatch
 resource "aws_iam_role_policy_attachment" "cloud-watch" {
