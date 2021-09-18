@@ -152,12 +152,6 @@ condition {
 }
 */
 
-// Add Lambda Dead Letter Queue
-resource "aws_iam_role_policy_attachment" "dlq" {
-  role = aws_iam_role.lambda.name
-  policy_arn = var.dead_letter_arn
-}
-
 // Adds CloudWatch
 resource "aws_iam_role_policy_attachment" "cloud-watch" {
   role = aws_iam_role.lambda.name
