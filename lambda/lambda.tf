@@ -1,12 +1,13 @@
 data "archive_file" "lambda" {
   type = "zip"
   source_dir = var.source_dir
-  output_path = "${var.source_dir}-${var.prefix}.zip"
+  excludes = var.excludes
+  output_path = "${var.name}.zip"
 }
 
 resource "aws_s3_bucket_object" "lambda" {
   count = var.s3_bucket == "" ? 0 : 1
-  key = "unsigned/${var.prefix}-${var.name}-${data.archive_file.lambda.output_md5}.zip"
+  key = "unsigned/${var.name}-${data.archive_file.lambda.output_md5}.zip"
   bucket = var.s3_bucket
   source = data.archive_file.lambda.output_path
   server_side_encryption = "AES256"
@@ -28,7 +29,7 @@ resource "aws_signer_signing_job" "lambda" {
   destination {
     s3 {
       bucket = var.s3_bucket
-      prefix = "signed/${var.prefix}-${var.name}-"
+      prefix = "signed/${var.name}-"
     }
   }
 
@@ -40,7 +41,7 @@ resource "aws_signer_signing_job" "lambda" {
 resource "aws_lambda_function" "lambda" {
   depends_on = [
     aws_signer_signing_job.lambda]
-  function_name = "${var.prefix}-${var.name}"
+  function_name = var.name
   description = local.description
   s3_bucket = var.s3_bucket
   s3_key = aws_signer_signing_job.lambda.signed_object[0]["s3"][0]["key"]
@@ -102,12 +103,12 @@ resource "aws_lambda_function" "lambda" {
 //}
 
 resource "aws_cloudwatch_log_group" "lambda" {
-  name = "/aws/lambda/${var.edge ? "us-east-1." : ""}${var.prefix}-${var.name}"
+  name = "/aws/lambda/${var.edge ? "us-east-1." : ""}${var.name}"
   retention_in_days = 30
 }
 
 resource "aws_iam_role" "lambda" {
-  name = "${var.prefix}-${var.name}-lambda-role"
+  name = "${var.name}-lambda-role"
   assume_role_policy = var.edge ? data.aws_iam_policy_document.edge-lambda.json : data.aws_iam_policy_document.lambda.json
 }
 
