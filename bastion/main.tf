@@ -71,10 +71,19 @@ resource "aws_iam_policy" "main-iam" {
       "Resource": [
         "${var.assume_role_arn}"
       ]
-    }, {
+    },
+    {
       "Effect": "Allow",
       "Action": "ec2:DescribeTags",
       "Resource": "*"
+    },
+    {
+      "Sid":"UpdateSSMAgent",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": [
+        "arn:aws:s3:::amazon-ssm-${local.region}/*"
+      ]
     }
   ]
 }

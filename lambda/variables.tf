@@ -22,13 +22,21 @@ variable "excludes" {
   default = []
 }
 
+variable "layers" {
+  type = list(string)
+  default = []
+}
 variable "runtime" {
   type = string
   default = "nodejs14.x"
 }
+variable "architecture" {
+  type = string
+  default = "x86_64"
+}
 variable "timeout" {
   type = string
-  default = "30"
+  default = "5" // CloudFront=5, API Gateway=30, Max=900
   description = "1024 = 1vCPU"
 }
 variable "memory" {

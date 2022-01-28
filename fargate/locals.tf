@@ -8,6 +8,7 @@ locals {
   ecs_mount_points = jsonencode([for volume in var.volumes: jsondecode("{\"containerPath\":\"${volume.container_path}\",\"sourceVolume\":\"${volume.name}\"}")])
   env        = merge({
     ACCOUNT_ID                          = local.account_id
+    #NODE_OPTIONS                        = "--experimental-json-modules"
     AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1
     # https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-nodejs-configuration.html#xray-sdk-nodejs-configuration-envvars
     AWS_XRAY_CONTEXT_MISSING            = "LOG_ERROR"

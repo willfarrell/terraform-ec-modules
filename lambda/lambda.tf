@@ -47,7 +47,9 @@ resource "aws_lambda_function" "lambda" {
   s3_key = aws_signer_signing_job.lambda.signed_object[0]["s3"][0]["key"]
   role = aws_iam_role.lambda.arn
   handler = "index.handler"
+  layers = var.layers
   runtime = var.runtime
+  architectures = [var.architecture]
   memory_size = var.memory
   reserved_concurrent_executions = var.reserved_concurrency
   timeout = var.timeout
@@ -73,7 +75,7 @@ resource "aws_lambda_function" "lambda" {
   }
 
   dynamic "environment" {
-    for_each = var.edge || length(keys(var.env)) == 0 ? [] : [
+    for_each = var.edge || length(keys(local.env)) == 0 ? [] : [
       1]
     content {
       variables = var.env
