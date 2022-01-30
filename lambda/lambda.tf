@@ -49,7 +49,7 @@ resource "aws_lambda_function" "lambda" {
   handler = "index.handler"
   layers = var.layers
   runtime = var.runtime
-  architectures = [var.architecture]
+  #architectures = [var.architecture] # TODO bug with tf, wants to always reapply
   memory_size = var.memory
   reserved_concurrent_executions = var.reserved_concurrency
   timeout = var.timeout
@@ -78,7 +78,7 @@ resource "aws_lambda_function" "lambda" {
     for_each = var.edge || length(keys(local.env)) == 0 ? [] : [
       1]
     content {
-      variables = var.env
+      variables = local.env
     }
   }
 

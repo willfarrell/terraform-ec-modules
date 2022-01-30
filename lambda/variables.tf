@@ -24,7 +24,7 @@ variable "excludes" {
 
 variable "layers" {
   type = list(string)
-  default = []
+  default = null
 }
 variable "runtime" {
   type = string
