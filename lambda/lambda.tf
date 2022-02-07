@@ -75,7 +75,7 @@ resource "aws_lambda_function" "lambda" {
   }
 
   dynamic "environment" {
-    for_each = var.edge || length(keys(local.env)) == 0 ? [] : [
+    for_each = var.edge ? [] : [
       1]
     content {
       variables = local.env
@@ -106,7 +106,8 @@ resource "aws_lambda_function" "lambda" {
 
 resource "aws_cloudwatch_log_group" "lambda" {
   name = "/aws/lambda/${var.edge ? "us-east-1." : ""}${var.name}"
-  retention_in_days = 30
+  retention_in_days = var.retention_in_days
+  kms_key_id = var.kms_key_id
 }
 
 resource "aws_iam_role" "lambda" {

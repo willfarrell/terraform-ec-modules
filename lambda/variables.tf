@@ -55,6 +55,16 @@ variable "reserved_concurrency" {
   default = -1
 }
 
+# Logs
+variable "retention_in_days" {
+  type = number
+  default = 30
+}
+variable "kms_key_id" {
+  type = string
+  default = null
+}
+
 # VPC
 variable "vpc_id" {
   type = string

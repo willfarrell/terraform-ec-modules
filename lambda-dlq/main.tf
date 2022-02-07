@@ -27,7 +27,10 @@ data "aws_iam_policy_document" "lambda-dlq" {
     sid = "KMS"
     effect = "Allow"
     actions = [
-      "kms:GenerateDataKey*",
+      "kms:GenerateDataKey",
+      "kms:GenerateDataKeyPair",
+      "kms:GenerateDataKeyPairWithoutPlaintext",
+      "kms:GenerateDataKeyWithoutPlaintext",
       "kms:Decrypt"
     ]
     resources = ["arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${var.kms_master_key_id}"]
