@@ -60,7 +60,7 @@ variable "retention_in_days" {
   type = number
   default = 30
 }
-variable "kms_key_id" {
+variable "kms_key_arn" {
   type = string
   default = null
 }

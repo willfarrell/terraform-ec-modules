@@ -38,53 +38,47 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerServiceforEC2Role" 
 
 resource "aws_iam_policy" "AmazonECSServiceRolePolicy" {
   name = "${local.name}-AmazonECSServiceRolePolicy"
-
-  policy = <<POLICY
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "ECSTaskManagement",
-            "Effect": "Allow",
-            "Action": [
-                "ec2:AttachNetworkInterface",
-                "ec2:CreateNetworkInterface",
-                "ec2:CreateNetworkInterfacePermission",
-                "ec2:DeleteNetworkInterface",
-                "ec2:DeleteNetworkInterfacePermission",
-                "ec2:Describe*",
-                "ec2:DetachNetworkInterface",
-                "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-                "elasticloadbalancing:DeregisterTargets",
-                "elasticloadbalancing:Describe*",
-                "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
-                "elasticloadbalancing:RegisterTargets",
-                "route53:ChangeResourceRecordSets",
-                "route53:CreateHealthCheck",
-                "route53:DeleteHealthCheck",
-                "route53:Get*",
-                "route53:List*",
-                "route53:UpdateHealthCheck",
-                "servicediscovery:DeregisterInstance",
-                "servicediscovery:Get*",
-                "servicediscovery:List*",
-                "servicediscovery:RegisterInstance",
-                "servicediscovery:UpdateInstanceCustomHealthStatus"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Sid": "ECSTagging",
-            "Effect": "Allow",
-            "Action": [
-                "ec2:CreateTags"
-            ],
-            "Resource": "arn:aws:ec2:*:*:network-interface/*"
-        }
-    ]
+  policy = data.aws_iam_policy_document.AmazonECSServiceRolePolicy.json
 }
-POLICY
 
+data "aws_iam_policy_document" "AmazonECSServiceRolePolicy" {
+  statement {
+    sid = "ECSTaskManagement"
+    effect = "Allow"
+    actions = [
+      "ec2:AttachNetworkInterface",
+      "ec2:CreateNetworkInterface",
+      "ec2:CreateNetworkInterfacePermission",
+      "ec2:DeleteNetworkInterface",
+      "ec2:DeleteNetworkInterfacePermission",
+      "ec2:Describe*",
+      "ec2:DetachNetworkInterface",
+      "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+      "elasticloadbalancing:DeregisterTargets",
+      "elasticloadbalancing:Describe*",
+      "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+      "elasticloadbalancing:RegisterTargets",
+      "route53:ChangeResourceRecordSets",
+      "route53:CreateHealthCheck",
+      "route53:DeleteHealthCheck",
+      "route53:Get*",
+      "route53:List*",
+      "route53:UpdateHealthCheck",
+      "servicediscovery:DeregisterInstance",
+      "servicediscovery:Get*",
+      "servicediscovery:List*",
+      "servicediscovery:RegisterInstance",
+      "servicediscovery:UpdateInstanceCustomHealthStatus"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    sid = "ECSTagging"
+    effect = "Allow"
+    actions = ["ec2:CreateTags"
+    ]
+    resources = ["arn:aws:ec2:*:*:network-interface/*"]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonECSServiceRolePolicy" {
@@ -115,6 +109,7 @@ POLICY
 
 }
 
+
 // TODO make more strict `Resourcs: [var.ecr_repo_arns]`
 resource "aws_iam_role_policy_attachment" "task_execution" {
   role       = aws_iam_role.task_execution.name
@@ -125,20 +120,16 @@ resource "aws_iam_role_policy_attachment" "task_execution" {
 resource "aws_iam_policy" "task-assume" {
   count  = var.assume_role_arn != "" ? 1 : 0
   name   = "${local.name}-assume-AmazonECSTaskExecutionRole"
-  policy = <<POLICY
-{
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": "sts:AssumeRole",
-        "Resource": [
-          "${var.assume_role_arn}"
-        ]
-      }
-    ]
+  policy = data.aws_iam_policy_document.task-assume.json
 }
-POLICY
+
+data "aws_iam_policy_document" "task-assume" {
+  statement {
+    sid = "AssumeRole"
+    effect = "Allow"
+    actions = ["sts:AssumeRole"]
+    resources = ["${var.assume_role_arn}"]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "task_execution_assume" {

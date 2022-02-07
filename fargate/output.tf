@@ -1,4 +1,3 @@
-
 output "role" {
   value = aws_iam_role.docker
 }
@@ -33,26 +32,24 @@ output "task_definition_arn" {
 }
 
 output "steps" {
-  value = <<JSON
-{
-  "Type": "Task",
-  "Resource":"arn:aws:states:::ecs:runTask.sync",
-  "Parameters":{
-    "LaunchType":"FARGATE",
-    "Cluster":"${var.ecs_cluster_name}",
-    "TaskDefinition":"${aws_ecs_task_definition.fargate.id}",
-    "Overrides":{
-      "ContainerOverrides":[
-        {
-          "Environment": [
+  value = jsonencode({
+    "Type" : "Task",
+    "Resource" : "arn:aws:states:::ecs:runTask.sync",
+    "Parameters" : {
+      "LaunchType" : "FARGATE",
+      "Cluster" : "${var.ecs_cluster_name}",
+      "TaskDefinition" : "${aws_ecs_task_definition.fargate.id}",
+      "Overrides" : {
+        "ContainerOverrides" : [
+          {
+            "Environment" : [
 
-          ]
-        }
-      ]
-    }
-  },
-  "Next":"${var.next}"
-}
-JSON
+            ]
+          }
+        ]
+      }
+    },
+    "Next" : "${var.next}"
+  })
 }
 

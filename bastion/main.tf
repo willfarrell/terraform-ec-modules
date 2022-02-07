@@ -31,24 +31,16 @@ resource "aws_iam_policy" "main-ip" {
   name        = "${local.name}-ip-policy"
   path        = "/"
   description = "${local.name}-ip Policy"
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:AssociateAddress"
-      ],
-      "Resource": [
-        "*"
-      ]
-    }
-  ]
+  policy = data.aws_iam_policy_document.main-ip.json
 }
-POLICY
 
+data "aws_iam_policy_document" "main-ip" {
+  statement {
+    sid = "AssociateAddress"
+    effect = "Allow"
+    actions = ["ec2:AssociateAddress"]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "main-ip" {
@@ -60,35 +52,28 @@ resource "aws_iam_policy" "main-iam" {
   name = "${local.name}-iam-policy"
   path = "/"
   description = "${local.name} SSH IAM Policy"
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "sts:AssumeRole",
-      "Resource": [
-        "${var.assume_role_arn}"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "ec2:DescribeTags",
-      "Resource": "*"
-    },
-    {
-      "Sid":"UpdateSSMAgent",
-      "Effect": "Allow",
-      "Action": "s3:GetObject",
-      "Resource": [
-        "arn:aws:s3:::amazon-ssm-${local.region}/*"
-      ]
-    }
-  ]
+  policy = data.aws_iam_policy_document.main-iam.json
 }
-POLICY
 
+data "aws_iam_policy_document" "main-iam" {
+  statement {
+    sid = "AssumeRole"
+    effect = "Allow"
+    actions = ["sts:AssumeRole"]
+    resources = ["${var.assume_role_arn}"]
+  }
+  statement {
+    sid = "DescribeTags"
+    effect = "Allow"
+    actions = ["ec2:DescribeTags"]
+    resources = ["*"]
+  }
+  statement {
+    sid = "UpdateSSMAgent"
+    effect = "Allow"
+    actions = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::amazon-ssm-${local.region}/*"]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "main-iam" {
