@@ -5,7 +5,7 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   aws_region = data.aws_region.current.name
   ecs_environment = jsonencode([for key in keys(local.env): jsondecode("{\"name\":\"${key}\",\"value\":\"${local.env[key]}\"}")])
-  ecs_mount_points = jsonencode([for volume in var.volumes: jsondecode("{\"containerPath\":\"${volume.container_path}\",\"sourceVolume\":\"${volume.name}\"}")])
+  ecs_mount_points = jsonencode([for volume in var.volumes: jsondecode("{\"containerPath\":\"${try(volume.container_path,"/mount/efs")}\",\"sourceVolume\":\"${volume.name}\"}")])
   env        = merge({
     ACCOUNT_ID                          = local.account_id
     #NODE_OPTIONS                        = "--experimental-json-modules"

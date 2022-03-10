@@ -13,6 +13,14 @@ resource "aws_efs_file_system" "main" {
   )
 }
 
+resource "aws_efs_backup_policy" "main" {
+  file_system_id = aws_efs_file_system.main.id
+
+  backup_policy {
+    status = "ENABLED"
+  }
+}
+
 resource "aws_efs_mount_target" "main" {
   count          = length(var.subnet_ids)
   file_system_id = aws_efs_file_system.main.id
