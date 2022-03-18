@@ -46,7 +46,7 @@ resource "aws_lambda_function" "lambda" {
   s3_bucket = var.s3_bucket
   s3_key = aws_signer_signing_job.lambda.signed_object[0]["s3"][0]["key"]
   role = aws_iam_role.lambda.arn
-  handler = "index.handler"
+  handler = var.handler
   layers = var.layers
   runtime = var.runtime
   #architectures = [var.architecture] # TODO bug with tf, wants to always reapply

@@ -22,6 +22,11 @@ variable "excludes" {
   default = []
 }
 
+variable "handler" {
+  type = string
+  default = "index.handler"
+}
+
 variable "layers" {
   type = list(string)
   default = null
