@@ -9,6 +9,7 @@ locals {
     ACCOUNT_ID                          = local.account_id
     #NODE_OPTIONS                        = "--experimental-json-modules"
     AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1
+    AWS_USE_FIPS_ENDPOINT               = "TRUE"
     # https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-nodejs-configuration.html#xray-sdk-nodejs-configuration-envvars
     #AWS_XRAY_CONTEXT_MISSING            = "LOG_ERROR"
     #AWS_XRAY_DAEMON_ADDRESS             = "0.0.0.0:2000" # Not required because running with awsvpc network mode
