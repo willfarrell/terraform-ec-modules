@@ -34,6 +34,11 @@ variable "volumes" {
   default = []
 }
 
+variable "architecture" {
+  type = string
+  default = "x86_64"
+}
+
 # Logs
 variable "retention_in_days" {
   type = number

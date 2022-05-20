@@ -33,7 +33,7 @@ variable "layers" {
 }
 variable "runtime" {
   type = string
-  default = "nodejs14.x"
+  default = "nodejs16.x"
 }
 variable "architecture" {
   type = string
