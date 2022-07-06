@@ -44,6 +44,7 @@ resource "aws_ecs_task_definition" "fargate" {
         "value": "${local.aws_region}"
       }
     ],
+    "readonlyRootFilesystem":true,
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
@@ -68,6 +69,7 @@ resource "aws_ecs_task_definition" "fargate" {
     "environment":${local.ecs_environment},
     "portMappings":[],
     "mountPoints":${local.ecs_mount_points},
+    "readonlyRootFilesystem":true,
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
