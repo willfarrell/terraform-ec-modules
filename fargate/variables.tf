@@ -83,3 +83,8 @@ variable "xray"{
   type = bool
   default = true
 }
+
+variable "readonly" {
+  type = bool
+  default = true
+}

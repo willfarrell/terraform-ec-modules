@@ -26,7 +26,7 @@ resource "aws_ecs_task_definition" "fargate" {
   cpu                   = var.cpu
   memory                = var.memory
   network_mode          = "awsvpc"           // ${join(",", data.null_data_source.environment.*.outputs.environment)}
-
+  #cpu_architecture      = upper(var.architecture)
   // TODO add --local-mode to xray CMD to quite `[Error] Get instance id metadata failed: RequestError: send request failed`
   # https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-ecs.html
   # Setting `--local-mode` quites the error message `[Error] Get instance id metadata failed: RequestError: send request failed`
@@ -69,7 +69,7 @@ resource "aws_ecs_task_definition" "fargate" {
     "environment":${local.ecs_environment},
     "portMappings":[],
     "mountPoints":${local.ecs_mount_points},
-    "readonlyRootFilesystem":true,
+    "readonlyRootFilesystem":${var.readonly},
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
