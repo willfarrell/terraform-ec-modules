@@ -48,9 +48,9 @@ resource "aws_ecs_task_definition" "fargate" {
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group" : "/ecs/${var.prefix}-${var.name}",
+        "awslogs-group" : "/aws/xray/${var.prefix}-${var.name}",
         "awslogs-region": "${local.aws_region}",
-        "awslogs-stream-prefix": "ecs"
+        "awslogs-stream-prefix": "xray"
       }
     },
     "portMappings": [
@@ -73,7 +73,7 @@ resource "aws_ecs_task_definition" "fargate" {
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group" : "/ecs/${var.prefix}-${var.name}",
+        "awslogs-group" : "/aws/ecs/${var.prefix}-${var.name}",
         "awslogs-region": "${local.aws_region}",
         "awslogs-stream-prefix": "ecs"
       }
@@ -97,10 +97,10 @@ DEFINITION
       name = volume.value["name"]
       efs_volume_configuration {
         file_system_id = volume.value["file_system_id"]
-        root_directory = volume.value["file_system_path"]
+        root_directory = try(volume.value["root_directory"], "/")
         transit_encryption = "ENABLED"
         dynamic "authorization_config" {
-          for_each = volume.value["access_point_id"] != "" ? [1] : []
+          for_each = try(volume.value["access_point_id"], "") != "" ? [1] : []
           content {
             access_point_id = volume.value["access_point_id"]
             iam             = "DISABLED" #volume.value["iam"] != "ENABLED" ? "DISABLED" : "ENABLED"
@@ -113,8 +113,14 @@ DEFINITION
   tags = {}
 }
 
+resource "aws_cloudwatch_log_group" "xray" {
+  name = "/aws/xray/${var.prefix}-${var.name}"
+  retention_in_days = var.retention_in_days
+  kms_key_id = var.kms_key_arn
+}
+
 resource "aws_cloudwatch_log_group" "docker" {
-  name = "/ecs/${var.prefix}-${var.name}"
+  name = "/aws/ecs/${var.prefix}-${var.name}"
   retention_in_days = var.retention_in_days
   kms_key_id = var.kms_key_arn
 }

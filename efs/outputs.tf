@@ -1,8 +1,8 @@
-output "efs_id" {
+output "id" {
   value = aws_efs_file_system.main.id
 }
 
-output "efs_dns_name" {
+output "dns_name" {
   value = aws_efs_file_system.main.dns_name
 }
 
@@ -19,6 +19,10 @@ output "mount_target_network_interface_ids" {
 }
 
 output "security_group_id" {
-  value = aws_security_group.main.id
+  value = aws_security_group.external.id
+}
+
+output "iam_policy_arn" {
+  value = aws_iam_policy.main.arn
 }
 
