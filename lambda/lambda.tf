@@ -49,7 +49,7 @@ resource "aws_lambda_function" "lambda" {
   handler = var.handler
   layers = var.layers
   runtime = var.runtime
-  #architectures = [var.architecture] # TODO bug with tf, wants to always reapply
+  architectures = [lower(var.architecture)]
   memory_size = var.memory
   reserved_concurrent_executions = var.reserved_concurrency
   timeout = var.timeout
@@ -155,19 +155,19 @@ condition {
 }
 */
 
-// Adds CloudWatch
+# Adds CloudWatch
 resource "aws_iam_role_policy_attachment" "cloud-watch" {
   role = aws_iam_role.lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-// Add X-Ray
+# Add X-Ray
 resource "aws_iam_role_policy_attachment" "xray" {
   role = aws_iam_role.lambda.name
   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
 }
 
-// Add NetworkInterface
+# Add NetworkInterface
 resource "aws_iam_role_policy_attachment" "vpc" {
   count = length(var.private_subnet_ids) == 0 ? 0 : 1
   role = aws_iam_role.lambda.name
