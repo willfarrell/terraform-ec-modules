@@ -33,7 +33,7 @@ variable "layers" {
 }
 variable "runtime" {
   type = string
-  default = "nodejs16.x"
+  default = "nodejs18.x"
 }
 variable "architecture" {
   type = string
@@ -41,7 +41,7 @@ variable "architecture" {
 }
 variable "timeout" {
   type = string
-  default = "5" // CloudFront=5, API Gateway=30, Max=900
+  default = "5" # CloudFront=5, API Gateway=30, Max=900
   description = "1024 = 1vCPU"
 }
 variable "memory" {
