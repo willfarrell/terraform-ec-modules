@@ -12,8 +12,14 @@ variable "edge" {
   default = false
 }
 
+variable "source_file" {
+  description = "Set to file name within source_dir to only use one file"
+  type = string
+  default = ""
+}
+
 variable "source_dir" {
-  description = "Only supports `source_dir` with `index.js` inside"
+  description = "Must not end with trailing /"
   type = string
 }
 

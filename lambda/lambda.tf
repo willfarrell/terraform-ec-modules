@@ -1,4 +1,12 @@
-data "archive_file" "lambda" {
+data "archive_file" "lambda_file" {
+  count = var.source_file != "" ? 1 : 0
+  type = "zip"
+  source_file = "${var.source_dir}/${var.source_file}"
+  output_path = "/tmp/${var.name}.zip"
+}
+
+data "archive_file" "lambda_dir" {
+  count = var.source_file == "" ? 1 : 0
   type = "zip"
   source_dir = var.source_dir
   excludes = var.excludes
@@ -7,12 +15,13 @@ data "archive_file" "lambda" {
 
 resource "aws_s3_bucket_object" "lambda" {
   count = var.s3_bucket == "" ? 0 : 1
-  key = "unsigned/${var.name}-${data.archive_file.lambda.output_md5}.zip"
+  key = "unsigned/${var.name}-${var.source_file != "" ? data.archive_file.lambda_file[0].output_md5 : data.archive_file.lambda_dir[0].output_md5}.zip"
   bucket = var.s3_bucket
-  source = data.archive_file.lambda.output_path
+  source = var.source_file != "" ? data.archive_file.lambda_file[0].output_path : data.archive_file.lambda_dir[0].output_path
   server_side_encryption = "AES256"
   depends_on = [
-    data.archive_file.lambda]
+    data.archive_file.lambda_file,data.archive_file.lambda_dir
+  ]
 }
 
 resource "aws_signer_signing_job" "lambda" {

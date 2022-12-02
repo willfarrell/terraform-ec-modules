@@ -7,7 +7,7 @@ variable "description" {
 }
 
 variable "source_dir" {
-  description = "Only supports `source_dir` with `index.js` inside"
+  description = "Only supports `source_dir` with `nodejs/node_modules/*` inside"
   type = string
 }
 
@@ -41,7 +41,7 @@ variable "compatible_architectures" {
 }
 variable "compatible_runtimes" {
   type = list(string)
-  default = ["nodejs","nodejs12.x","nodejs14.x"]
+  default = ["nodejs","nodejs16.x","nodejs18.x"]
 }
 
 # Layer Perms
