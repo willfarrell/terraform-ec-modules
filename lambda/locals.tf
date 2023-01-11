@@ -8,7 +8,7 @@ locals {
   env        = merge({
     ACCOUNT_ID                          = local.account_id
     #NODE_OPTIONS                        = "--experimental-json-modules"
-    AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1
+    # AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1 # No longer need w/ AWS SDK
     # AWS_USE_FIPS_ENDPOINT               = "TRUE" # { useFipsEndpoint: true }
     # https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-nodejs-configuration.html#xray-sdk-nodejs-configuration-envvars
     #AWS_XRAY_CONTEXT_MISSING            = "LOG_ERROR"
