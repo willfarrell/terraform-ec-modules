@@ -5,15 +5,16 @@ data "archive_file" "layer" {
   output_path = "/tmp/${var.name}.zip"
 }
 
-resource "aws_s3_bucket_object" "layer" {
+resource "aws_s3_object" "layer" {
   count = var.s3_bucket == "" ? 0 : 1
-  key = "unsigned/${var.name}-${data.archive_file.layer.output_md5}.zip"
   bucket = var.s3_bucket
+  key = "unsigned/${var.name}-${data.archive_file.layer.output_md5}.zip"
   source = data.archive_file.layer.output_path
   server_side_encryption = "AES256"
   depends_on = [
-    data.archive_file.layer]
+  data.archive_file.layer]
 }
+
 
 resource "aws_signer_signing_job" "layer" {
   profile_name = var.signer_profile_name
@@ -21,7 +22,7 @@ resource "aws_signer_signing_job" "layer" {
   source {
     s3 {
       bucket = var.s3_bucket
-      key = aws_s3_bucket_object.layer[0].id
+      key = aws_s3_object.layer[0].id
       version = "null"
     }
   }
@@ -35,7 +36,7 @@ resource "aws_signer_signing_job" "layer" {
 
   ignore_signing_job_failure = false
   depends_on = [
-    aws_s3_bucket_object.layer]
+    aws_s3_object.layer]
 }
 
 resource "aws_lambda_layer_version" "layer" {
