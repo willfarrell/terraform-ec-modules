@@ -1,5 +1,5 @@
 
-// APIG Endpoint
+# APIG Endpoint
 resource "aws_apigatewayv2_route" "main" {
   api_id    = var.api_id
   route_key = "${var.method} ${var.path}"
@@ -10,7 +10,7 @@ resource "aws_apigatewayv2_integration" "main" {
   api_id           = var.api_id
   integration_type = "AWS_PROXY"
   integration_method     = "POST"
-  payload_format_version = "2.0"
+  payload_format_version = var.format
   integration_uri        = var.invoke_arn
 }
 

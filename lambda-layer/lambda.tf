@@ -6,7 +6,6 @@ data "archive_file" "layer" {
 }
 
 resource "aws_s3_object" "layer" {
-  count = var.s3_bucket == "" ? 0 : 1
   bucket = var.s3_bucket
   key = "unsigned/${var.name}-${data.archive_file.layer.output_md5}.zip"
   source = data.archive_file.layer.output_path
@@ -22,7 +21,7 @@ resource "aws_signer_signing_job" "layer" {
   source {
     s3 {
       bucket = var.s3_bucket
-      key = aws_s3_object.layer[0].id
+      key = aws_s3_object.layer.id
       version = "null"
     }
   }

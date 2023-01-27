@@ -24,3 +24,9 @@ variable "method" {
 variable "path" {
   type = string
 }
+
+variable "format" {
+  type = string
+  description = "API gateway format"
+  default = "2.0"
+}
