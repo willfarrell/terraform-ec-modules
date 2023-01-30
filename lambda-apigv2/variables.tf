@@ -26,7 +26,19 @@ variable "path" {
 }
 
 variable "format" {
-  type = string
+  type        = string
   description = "API gateway format"
-  default = "2.0"
+  default     = "2.0"
+}
+
+variable "authorization_type" {
+  type        = string
+  description = "Authorization type for the route"
+  default     = "NONE"
+}
+
+variable "authorizer_id" {
+  type        = string
+  description = "Identifier of the authorizer resource"
+  default     = null
 }

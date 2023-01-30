@@ -1,25 +1,26 @@
-
 # APIG Endpoint
 resource "aws_apigatewayv2_route" "main" {
-  api_id    = var.api_id
-  route_key = "${var.method} ${var.path}"
-  target    = "integrations/${aws_apigatewayv2_integration.main.id}"
+  api_id             = var.api_id
+  route_key          = "${var.method} ${var.path}"
+  target             = "integrations/${aws_apigatewayv2_integration.main.id}"
+  authorization_type = var.authorization_type
+  authorizer_id      = var.authorizer_id
 }
 resource "aws_apigatewayv2_integration" "main" {
-  description      = var.description
-  api_id           = var.api_id
-  integration_type = "AWS_PROXY"
+  description            = var.description
+  api_id                 = var.api_id
+  integration_type       = "AWS_PROXY"
   integration_method     = "POST"
   payload_format_version = var.format
   integration_uri        = var.invoke_arn
 }
 
 resource "aws_lambda_permission" "main" {
-  statement_id_prefix  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = var.function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${var.api_execution_arn}/*/*${var.path}"
+  statement_id_prefix = "AllowExecutionFromAPIGateway"
+  action              = "lambda:InvokeFunction"
+  function_name       = var.function_name
+  principal           = "apigateway.amazonaws.com"
+  source_arn          = "${var.api_execution_arn}/*/*${var.path}"
 }
 
 
