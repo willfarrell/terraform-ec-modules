@@ -59,6 +59,31 @@ resource "aws_sqs_queue" "lambda-dlq" {
   kms_master_key_id = var.kms_master_key_id
 }
 
+resource "aws_sqs_queue_policy" "lambda-dlq" {
+  queue_url = aws_sqs_queue.lambda-dlq.id
+  policy    = data.aws_iam_policy_document.lambda-dlq-sqs-policy.json
+}
+
+data "aws_iam_policy_document" "lambda-dlq-sqs-policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.lambda-dlq.arn]
+
+    principals {
+      type        = "Service"
+      identifiers = ["sns.${data.aws_partition.current.dns_suffix}"]
+    }
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+
+      values = [aws_sns_topic.lambda-dlq.arn]
+    }
+  }
+}
+
 # *** Lambda Policy *** #
 resource "aws_iam_policy" "lambda-dlq" {
   name   = "${var.name}-lambda-dlq-policy"
