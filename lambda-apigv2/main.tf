@@ -1,7 +1,7 @@
 # APIG Endpoint
 resource "aws_apigatewayv2_route" "main" {
   api_id             = var.api_id
-  route_key          = "${var.method} ${var.path}"
+  route_key          = var.method != null ? "${var.method} ${var.path}" : var.path # http / ws
   target             = "integrations/${aws_apigatewayv2_integration.main.id}"
   authorization_type = var.authorization_type
   authorizer_id      = var.authorizer_id
@@ -11,7 +11,7 @@ resource "aws_apigatewayv2_integration" "main" {
   api_id                 = var.api_id
   integration_type       = "AWS_PROXY"
   integration_method     = "POST"
-  payload_format_version = var.format
+  payload_format_version = var.method != null ? var.format : null # http / ws
   integration_uri        = var.invoke_arn
 }
 

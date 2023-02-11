@@ -20,6 +20,7 @@ variable "invoke_arn" {
 
 variable "method" {
   type = string
+  default = null
 }
 variable "path" {
   type = string
