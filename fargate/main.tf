@@ -25,12 +25,15 @@ resource "aws_ecs_task_definition" "fargate" {
 
   cpu                   = var.cpu
   memory                = var.memory
-  network_mode          = "awsvpc"           // ${join(",", data.null_data_source.environment.*.outputs.environment)}
-  #cpu_architecture      = upper(var.architecture)
-  // TODO add --local-mode to xray CMD to quite `[Error] Get instance id metadata failed: RequestError: send request failed`
+  network_mode          = "awsvpc"           # ${join(",", data.null_data_source.environment.*.outputs.environment)}
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture      = upper(var.architecture)
+  }
+  # TODO add --local-mode to xray CMD to quite `[Error] Get instance id metadata failed: RequestError: send request failed`
   # https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-ecs.html
   # Setting `--local-mode` quites the error message `[Error] Get instance id metadata failed: RequestError: send request failed`
-  container_definitions = <<DEFINITION
+  container_definitions = jsonencode(
 [
   {
     "name": "xray-daemon"  ,
@@ -88,7 +91,7 @@ resource "aws_ecs_task_definition" "fargate" {
     }
   }
 ]
-DEFINITION
+)
   # Add in sidecar x-ray container
 
   dynamic "volume" {
