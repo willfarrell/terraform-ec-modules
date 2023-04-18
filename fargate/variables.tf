@@ -30,7 +30,16 @@ variable "memory" {
 }
 
 variable "volumes" {
-  type = list(map(string))
+  type = list(object({
+    name = string
+    file_system_id = string
+    container_path = optional(string, "/mnt/efs")
+    root_directory = optional(string, "/")
+    readOnly = optional(bool, false)
+    transit_encryption = optional(bool, true)
+    access_point_id = optional(string, "")
+    iam = optional(bool, false)
+  }))
   default = []
 }
 
@@ -42,14 +51,14 @@ variable "architecture" {
 # Logs
 variable "retention_in_days" {
   type = number
-  default = 30
+  default = 365
 }
 variable "kms_key_arn" {
   type = string
   default = null
 }
 
-// Step Function Logic
+# Step Function Logic
 variable "result" {
   type = map(string)
   default = {}
@@ -75,6 +84,11 @@ variable "private_subnet_ids" {
 }
 
 variable "env" {
+  type = map(string)
+  default = {}
+}
+
+variable "secrets" {
   type = map(string)
   default = {}
 }

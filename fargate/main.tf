@@ -36,63 +36,53 @@ resource "aws_ecs_task_definition" "fargate" {
   container_definitions = jsonencode(
 [
   {
-    "name": "xray-daemon"  ,
-    "image": "public.ecr.aws/xray/aws-xray-daemon:3.x",
-    "commnad": "--local-mode",
-    "cpu": 32,
-    "memory": 128,
-    "environment": [
-      {
-        "name": "AWS_REGION",
-        "value": "${local.aws_region}"
-      }
-    ],
-    "readonlyRootFilesystem":true,
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group" : "/aws/xray/${var.prefix}-${var.name}",
-        "awslogs-region": "${local.aws_region}",
-        "awslogs-stream-prefix": "xray"
-      }
-    },
-    "portMappings": [
-      {
-        "protocol": "udp",
-        "containerPort": 2000
-      }
-    ]
-  },
-  {
-    "name": "${var.prefix}-${var.name}",
-    "image": "${var.image}",
-    "essential":true,
-    "cpu":${parseint(var.cpu, 10) - 32},
-    "memory":${parseint(var.memory, 10) - 128},
-    "environment":${local.ecs_environment},
+    "name" : "${var.prefix}-${var.name}",
+    "image" : "${var.image}",
+    "essential" : true,
+    "cpu" : parseint(var.cpu, 10), 
+    "memory": parseint(var.memory, 10),
+    
     "portMappings":[],
-    "mountPoints":${local.ecs_mount_points},
-    "readonlyRootFilesystem":${var.readonly},
+    "readonlyRootFilesystem": var.readonly,
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
         "awslogs-group" : "/aws/ecs/${var.prefix}-${var.name}",
-        "awslogs-region": "${local.aws_region}",
+        "awslogs-region": local.region,
         "awslogs-stream-prefix": "ecs"
       }
     },
     "networkMode": "awsvpc",
     "networkConfiguration":{
       "awsvpcConfiguration":{
-        "securityGroups":${jsonencode(var.security_group_ids)},
-        "subnets":${jsonencode(var.private_subnet_ids)},
+        "securityGroups": var.security_group_ids,
+        "subnets": var.private_subnet_ids,
         "assignPublicIp": "DISABLED"
       }
-    }
+    },
+    "environment": [for key in keys(local.env): 
+      {
+        "name":key,
+        "value":local.env[key]
+      }
+    ],
+    "secrets": [for key in keys(var.secrets): 
+      {
+        "name":key,
+        "valueFrom":"arn:aws:ssm:${local.region}:${local.account_id}:parameter/${var.secrets[key]}"
+      }
+    ],
+    "mountPoints": [for volume in var.volumes: 
+      {
+        "containerPath": volume.container_path,
+        "sourceVolume":volume.name
+        "readOnly": volume.readOnly
+      }
+    ],
+    "volumesFrom": [],
   }
 ]
 )
-  # Add in sidecar x-ray container
 
   dynamic "volume" {
     for_each = var.volumes
@@ -100,13 +90,13 @@ resource "aws_ecs_task_definition" "fargate" {
       name = volume.value["name"]
       efs_volume_configuration {
         file_system_id = volume.value["file_system_id"]
-        root_directory = try(volume.value["root_directory"], "/")
-        transit_encryption = "ENABLED"
+        root_directory = volume.value["root_directory"] # Default: "/"
+        transit_encryption = volume.value["transit_encryption"] ? "ENABLED" : "DISABLED"
         dynamic "authorization_config" {
           for_each = try(volume.value["access_point_id"], "") != "" ? [1] : []
           content {
             access_point_id = volume.value["access_point_id"]
-            iam             = "DISABLED" #volume.value["iam"] != "ENABLED" ? "DISABLED" : "ENABLED"
+            iam             = volume.value["iam"] ? "ENABLED" : "DISABLED"
           }
         }
       }
@@ -116,11 +106,40 @@ resource "aws_ecs_task_definition" "fargate" {
   tags = {}
 }
 
-resource "aws_cloudwatch_log_group" "xray" {
+/*{
+  "name": "xray-daemon"  ,
+  "image": "public.ecr.aws/xray/aws-xray-daemon:3.x",
+  "commnad": "--local-mode",
+  "cpu": 32, #${parseint(var.cpu, 10) - 32},
+  "memory": 128, #${parseint(var.memory, 10) - 128},
+  "environment": [
+    {
+      "name": "AWS_REGION",
+      "value": "${local.region}"
+    }
+  ],
+  "readonlyRootFilesystem":true,
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group" : "/aws/xray/${var.prefix}-${var.name}",
+      "awslogs-region": "${local.region}",
+      "awslogs-stream-prefix": "xray"
+    }
+  },
+  "portMappings": [
+    {
+      "protocol": "udp",
+      "containerPort": 2000
+    }
+  ]
+},*/
+
+/*resource "aws_cloudwatch_log_group" "xray" {
   name = "/aws/xray/${var.prefix}-${var.name}"
   retention_in_days = var.retention_in_days
   kms_key_id = var.kms_key_arn
-}
+}*/
 
 resource "aws_cloudwatch_log_group" "docker" {
   name = "/aws/ecs/${var.prefix}-${var.name}"
@@ -131,7 +150,7 @@ resource "aws_cloudwatch_log_group" "docker" {
 
 resource "aws_iam_role" "docker" {
   name               = "${var.prefix}-${var.name}-docker-role"
-  assume_role_policy = <<ROLE
+  assume_role_policy = jsonencode(
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -143,8 +162,7 @@ resource "aws_iam_role" "docker" {
       "Action": "sts:AssumeRole"
     }
   ]
-}
-ROLE
+})
 }
 
 resource "aws_iam_role_policy_attachment" "main-docker-AWSXRayDaemonWriteAccess" {
@@ -154,7 +172,7 @@ resource "aws_iam_role_policy_attachment" "main-docker-AWSXRayDaemonWriteAccess"
 
 resource "aws_iam_role" "docker-execution" {
   name               = "${var.prefix}-${var.name}-docker-execution-role"
-  assume_role_policy = <<ROLE
+  assume_role_policy = jsonencode(
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -167,10 +185,35 @@ resource "aws_iam_role" "docker-execution" {
     }
   ]
 }
-ROLE
+)
 }
 
 resource "aws_iam_role_policy_attachment" "main-docker-execution-AmazonECSTaskExecutionRolePolicy" {
   role       = aws_iam_role.docker-execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+# secrets
+resource "aws_iam_role_policy_attachment" "main-docker-ssm-env" {
+  count = length(keys(var.secrets)) > 0 ? 1 : 0
+  role       = aws_iam_role.docker-execution.name
+  policy_arn = aws_iam_policy.main-docker-ssm-env[1].arn
+}
+
+resource "aws_iam_policy" "main-docker-ssm-env" {
+  count = length(keys(var.secrets)) > 0 ? 1 : 0
+  name   = "${var.name}-ssm-env-policy"
+  policy = data.aws_iam_policy_document.main-docker-ssm-env[1].json
+}
+
+data "aws_iam_policy_document" "main-docker-ssm-env" {
+  count = length(keys(var.secrets)) > 0 ? 1 : 0
+  statement {
+    sid       = "SSMEnv"
+    effect    = "Allow"
+    actions   = ["ssm:GetParameters"]
+    resources = [
+      for key in keys(var.secrets): "arn:aws:ssm:${local.region}:${local.account_id}:parameter/${var.secrets[key]}"
+    ]
+  }
 }
