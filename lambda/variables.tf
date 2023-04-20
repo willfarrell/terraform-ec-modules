@@ -69,7 +69,7 @@ variable "reserved_concurrency" {
 # Logs
 variable "retention_in_days" {
   type    = number
-  default = 365 # [CloudWatch.16] This controls evaluates if a CloudWatch log group has a retention period of at least 1 year.
+  default = 0 # [CloudWatch.16] This controls evaluates if a CloudWatch log group has a retention period of at least 1 year.
 }
 variable "kms_key_arn" {
   type    = string

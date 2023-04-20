@@ -29,6 +29,10 @@ variable "memory" {
   description = "1024 = 1 GB"
 }
 
+variable "command" {
+  type = list(string)
+  default = []
+}
 variable "volumes" {
   type = list(object({
     name = string
@@ -51,7 +55,7 @@ variable "architecture" {
 # Logs
 variable "retention_in_days" {
   type = number
-  default = 365
+  default = 0
 }
 variable "kms_key_arn" {
   type = string

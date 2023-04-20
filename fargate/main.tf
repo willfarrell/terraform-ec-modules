@@ -41,7 +41,7 @@ resource "aws_ecs_task_definition" "fargate" {
     "essential" : true,
     "cpu" : parseint(var.cpu, 10), 
     "memory": parseint(var.memory, 10),
-    
+    "command": var.command,
     "portMappings":[],
     "readonlyRootFilesystem": var.readonly,
     "logConfiguration": {
@@ -143,7 +143,7 @@ resource "aws_ecs_task_definition" "fargate" {
 
 resource "aws_cloudwatch_log_group" "docker" {
   name = "/aws/ecs/${var.prefix}-${var.name}"
-  retention_in_days = var.retention_in_days
+  retention_in_days = var.retention_in_days == 0 ? (terraform.workspace == "production" ? 365 : 7) : var.retention_in_days
   kms_key_id = var.kms_key_arn
 }
 

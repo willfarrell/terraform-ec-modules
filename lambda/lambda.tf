@@ -119,7 +119,7 @@ resource "aws_lambda_function" "lambda" {
 
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/${var.edge ? "us-east-1." : ""}${var.name}"
-  retention_in_days = var.retention_in_days
+  retention_in_days = var.retention_in_days == 0 ? (terraform.workspace == "production" ? 365 : 7) : var.retention_in_days
   kms_key_id        = var.kms_key_arn
 }
 
