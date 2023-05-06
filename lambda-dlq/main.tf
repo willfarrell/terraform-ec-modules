@@ -1,6 +1,7 @@
 # *** SNS *** #
 resource "aws_sns_topic" "lambda-dlq" {
   name                             = "${var.name}-lambda-dlq"
+  tracing_config                   = "Active"
   kms_master_key_id                = var.kms_master_key_id
   sqs_success_feedback_role_arn    = aws_iam_role.lambda-dlq-sns.arn
   sqs_success_feedback_sample_rate = 100
