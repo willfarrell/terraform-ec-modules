@@ -1,12 +1,12 @@
 data "archive_file" "lambda_file" {
-  count       = var.source_file != "" ? 1 : 0
+  count       = var.package_type == "Zip" && var.source_file != "" ? 1 : 0
   type        = "zip"
   source_file = "${var.source_dir}/${var.source_file}"
   output_path = "/tmp/${var.name}.zip"
 }
 
 data "archive_file" "lambda_dir" {
-  count       = var.source_file == "" ? 1 : 0
+  count       = var.package_type == "Zip" && var.source_file == "" ? 1 : 0
   type        = "zip"
   source_dir  = var.source_dir
   excludes    = var.excludes
@@ -14,7 +14,7 @@ data "archive_file" "lambda_dir" {
 }
 
 resource "aws_s3_object" "lambda" {
-  count                  = var.s3_bucket == "" ? 0 : 1
+  count                  = var.package_type == "Zip" && var.s3_bucket != "" ? 1 : 0
   bucket                 = var.s3_bucket
   key                    = "unsigned/${var.name}-${var.source_file != "" ? data.archive_file.lambda_file[0].output_md5 : data.archive_file.lambda_dir[0].output_md5}.zip"
   source                 = var.source_file != "" ? data.archive_file.lambda_file[0].output_path : data.archive_file.lambda_dir[0].output_path
@@ -25,6 +25,7 @@ resource "aws_s3_object" "lambda" {
 }
 
 resource "aws_signer_signing_job" "lambda" {
+  count        = var.package_type == "Zip" ? 1 : 0
   profile_name = var.signer_profile_name
 
   source {
@@ -48,25 +49,37 @@ resource "aws_signer_signing_job" "lambda" {
   ]
 }
 
+locals {
+  image_uri               = var.package_type == "Image" ? var.image_uri : null
+  s3_bucket               = var.package_type == "Zip" ? var.s3_bucket : null
+  s3_key                  = var.package_type == "Zip" ? aws_signer_signing_job.lambda[0].signed_object[0]["s3"][0]["key"] : null
+  handler                 = var.package_type == "Zip" ? var.handler : null
+  layers                  = var.package_type == "Zip" ? var.layers : null
+  runtime                 = var.package_type == "Zip" ? var.runtime : null
+  architectures           = var.package_type == "Zip" ? [lower(var.architecture)] : null
+  code_signing_config_arn = var.package_type == "Zip" ? var.code_signing_config_arn : null
+}
+
 resource "aws_lambda_function" "lambda" {
   depends_on = [
     aws_signer_signing_job.lambda
   ]
   function_name                  = var.name
   description                    = local.description
-  s3_bucket                      = var.s3_bucket
-  s3_key                         = aws_signer_signing_job.lambda.signed_object[0]["s3"][0]["key"]
   role                           = aws_iam_role.lambda.arn
-  handler                        = var.handler
-  layers                         = var.layers
-  runtime                        = var.runtime
-  architectures                  = [lower(var.architecture)]
+  package_type                   = var.package_type
+  image_uri                      = local.image_uri
+  s3_bucket                      = local.s3_bucket
+  s3_key                         = local.s3_key
+  code_signing_config_arn        = local.code_signing_config_arn
+  handler                        = local.handler
+  layers                         = local.layers
+  runtime                        = local.runtime
+  architectures                  = local.architectures
   memory_size                    = var.memory
   reserved_concurrent_executions = var.reserved_concurrency
   timeout                        = var.timeout
   publish                        = true
-
-  code_signing_config_arn = var.code_signing_config_arn
 
   dynamic "dead_letter_config" {
     for_each = var.edge ? [] : [
@@ -84,6 +97,14 @@ resource "aws_lambda_function" "lambda" {
   vpc_config {
     subnet_ids         = var.private_subnet_ids
     security_group_ids = var.security_group_ids
+  }
+  
+  dynamic "file_system_config" {
+    for_each = var.volumes
+    content {
+      arn = file_system_config.value["arn"]
+      local_mount_path = file_system_config.value["local_mount_path"]
+    }
   }
 
   dynamic "environment" {
@@ -186,4 +207,29 @@ resource "aws_iam_role_policy_attachment" "vpc" {
   count      = length(var.private_subnet_ids) == 0 ? 0 : 1
   role       = aws_iam_role.lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
+}
+
+# Add ECR
+resource "aws_iam_policy" "ecr" {
+  count  = var.package_type == "Image" ? 1 : 0
+  name   = "${var.name}ECRAccess"
+  policy = data.aws_iam_policy_document.ecr.json
+}
+
+data "aws_iam_policy_document" "ecr" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecr:GetRepositoryPolicy",
+      # "ecr:SetRepositoryPolicy",
+      "ecr:LambdaECRImageRetrievalPolicy",
+    ]
+    resources = ["*"]
+  }
+
+}
+resource "aws_iam_role_policy_attachment" "ecr" {
+  count      = var.package_type == "Image" ? 1 : 0
+  role       = aws_iam_role.lambda.name
+  policy_arn = aws_iam_policy.ecr.0.arn
 }

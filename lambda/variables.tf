@@ -12,6 +12,11 @@ variable "edge" {
   default     = false
 }
 
+variable "package_type" {
+  type    = string
+  default = "Zip" # Image
+}
+
 variable "source_file" {
   description = "Set to file name within source_dir to only use one file"
   type        = string
@@ -21,6 +26,12 @@ variable "source_file" {
 variable "source_dir" {
   description = "Must not end with trailing /"
   type        = string
+}
+
+variable "image_uri" {
+  description = "Set to ECR container image uri"
+  type        = string
+  default     = ""
 }
 
 variable "excludes" {
@@ -109,22 +120,28 @@ variable "private_subnet_ids" {
 }
 
 variable "volumes" {
-  type    = list(map(string))
+  type = list(object({
+    arn = string
+    local_mount_path = optional(string, "/mnt/efs")
+  }))
   default = []
 }
 
 # CI
 variable "s3_bucket" {
   type = string
+  default = ""
 }
 
 variable "code_signing_config_arn" {
   description = ""
   type        = string
+  default     = null
 }
 
 variable "signer_profile_name" {
   type = string
+  default = null
 }
 
 # Lambda@Edge Doesn't support DQL

@@ -52,7 +52,8 @@ resource "aws_ecr_repository_policy" "main" {
             "Sid": "PullOnly",
             "Effect": "Allow",
             "Principal":{
-              "AWS": ${jsonencode(local.allowed_arns)}
+              "AWS": ${jsonencode(local.allowed_arns)},
+              "Service": "lambda.amazonaws.com"
             },
             "Action": [
                 "ecr:GetDownloadUrlForLayer",
