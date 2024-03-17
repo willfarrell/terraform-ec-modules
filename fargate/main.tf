@@ -197,13 +197,13 @@ resource "aws_iam_role_policy_attachment" "main-docker-execution-AmazonECSTaskEx
 resource "aws_iam_role_policy_attachment" "main-docker-ssm-env" {
   count = length(keys(var.secrets)) > 0 ? 1 : 0
   role       = aws_iam_role.docker-execution.name
-  policy_arn = aws_iam_policy.main-docker-ssm-env[1].arn
+  policy_arn = aws_iam_policy.main-docker-ssm-env[0].arn
 }
 
 resource "aws_iam_policy" "main-docker-ssm-env" {
   count = length(keys(var.secrets)) > 0 ? 1 : 0
   name   = "${var.name}-ssm-env-policy"
-  policy = data.aws_iam_policy_document.main-docker-ssm-env[1].json
+  policy = data.aws_iam_policy_document.main-docker-ssm-env[0].json
 }
 
 data "aws_iam_policy_document" "main-docker-ssm-env" {
