@@ -138,13 +138,13 @@ resource "aws_ecs_task_definition" "fargate" {
 /*resource "aws_cloudwatch_log_group" "xray" {
   name = "/aws/xray/${var.prefix}-${var.name}"
   retention_in_days = var.retention_in_days
-  kms_key_id = var.kms_key_arn
+  kms_key_id = var.kms_key_id
 }*/
 
 resource "aws_cloudwatch_log_group" "docker" {
   name = "/aws/ecs/${var.prefix}-${var.name}"
   retention_in_days = var.retention_in_days == 0 ? (terraform.workspace == "production" ? 365 : 7) : var.retention_in_days
-  kms_key_id = var.kms_key_arn
+  kms_key_id = var.kms_key_id
 }
 
 
