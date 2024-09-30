@@ -9,7 +9,8 @@ resource "aws_s3_object" "layer" {
   bucket = var.s3_bucket
   key = "unsigned/${var.name}-${data.archive_file.layer.output_md5}.zip"
   source = data.archive_file.layer.output_path
-  server_side_encryption = "AES256"
+  checksum_algorithm     = "SHA256"
+  force_destroy          = true # For Object Lock
   depends_on = [
   data.archive_file.layer]
 }

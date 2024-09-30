@@ -92,26 +92,34 @@ POLICY
 resource "aws_ecr_lifecycle_policy" "main" {
   repository = aws_ecr_repository.main.name
 
-  policy = <<EOF
-{
-    "rules": [
-        {
-            "rulePriority": 1,
-            "description": "Expire untaggged images older than 1 day",
-            "selection": {
-                "tagStatus": "untagged",
-                "countType": "sinceImagePushed",
-                "countUnit": "days",
-                "countNumber": 1
-            },
-            "action": {
-                "type": "expire"
-            }
-        }
-    ]
+  policy = aws_ecr_lifecycle_policy_document.main.json
 }
-EOF
+
+resource "aws_ecr_lifecycle_policy_document" "main" {
+  rule {
+    priority    = 1
+    description = "Expire untaggged images older than 1 day"
+  
+    selection {
+      tag_status      = "untagged"
+      count_type      = "sinceImagePushed"
+      count_unit      = "days"
+      count_number    = 1
+    }
+  }
+  rule {
+    priority    = 2
+    description = "Keep last 25 images"
+  
+    selection {
+      tag_status      = "tagged"
+      tag_pattern_list = ["*"]
+      count_type      = "imageCountMoreThan"
+      count_number    = 25
+    }
+  }
 }
+
 /*
 {
     "rulePriority": 2,

@@ -35,7 +35,7 @@ variable "format" {
 variable "authorization_type" {
   type        = string
   description = "Authorization type for the route"
-  default     = "NONE"
+  default     = "NONE" # AWS_IAM
 }
 
 variable "authorizer_id" {

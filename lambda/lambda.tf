@@ -18,7 +18,8 @@ resource "aws_s3_object" "lambda" {
   bucket                 = var.s3_bucket
   key                    = "unsigned/${var.name}-${var.source_file != "" ? data.archive_file.lambda_file[0].output_md5 : data.archive_file.lambda_dir[0].output_md5}.zip"
   source                 = var.source_file != "" ? data.archive_file.lambda_file[0].output_path : data.archive_file.lambda_dir[0].output_path
-  server_side_encryption = "AES256"
+  checksum_algorithm     = "SHA256"
+  force_destroy          = true # For Object Lock in Governance Mode
   depends_on             = [
     data.archive_file.lambda_file, data.archive_file.lambda_dir
   ]
@@ -32,7 +33,7 @@ resource "aws_signer_signing_job" "lambda" {
     s3 {
       bucket  = var.s3_bucket
       key     = aws_s3_object.lambda[0].id
-      version = "null"
+      version = aws_s3_object.lambda[0].version_id
     }
   }
 
