@@ -23,7 +23,7 @@ resource "aws_signer_signing_job" "layer" {
     s3 {
       bucket = var.s3_bucket
       key = aws_s3_object.layer.id
-      version = "null"
+      version = aws_s3_object.lambda.version_id
     }
   }
 
@@ -36,7 +36,8 @@ resource "aws_signer_signing_job" "layer" {
 
   ignore_signing_job_failure = false
   depends_on = [
-    aws_s3_object.layer]
+    aws_s3_object.layer
+  ]
 }
 
 resource "aws_lambda_layer_version" "layer" {
