@@ -92,7 +92,7 @@ POLICY
 resource "aws_ecr_lifecycle_policy" "main" {
   repository = aws_ecr_repository.main.name
 
-  policy = aws_ecr_lifecycle_policy_document.main.json
+  policy = data.aws_ecr_lifecycle_policy_document.main.json
 }
 
 data "aws_ecr_lifecycle_policy_document" "main" {
