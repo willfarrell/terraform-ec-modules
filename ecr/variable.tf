@@ -23,6 +23,12 @@ variable "sub_accounts" {
   }
 }
 
-variable "kms_key_arn" {
-  default = null
+variable "expire_untagged_days" {
+  type = number
+  default = 1
 }
+
+
+# variable "kms_key_arn" {
+#   default = null
+# }
