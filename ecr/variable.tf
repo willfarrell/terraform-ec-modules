@@ -23,9 +23,10 @@ variable "sub_accounts" {
   }
 }
 
-variable "expire_untagged_days" {
-  type = number
-  default = 1
+variable "lifecycle_policy" {
+  description = "data.aws_ecr_lifecycle_policy_document.main.json"
+  type = string
+  default = null
 }
 
 

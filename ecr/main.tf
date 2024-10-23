@@ -90,49 +90,8 @@ POLICY
 }
 
 resource "aws_ecr_lifecycle_policy" "main" {
+  count = var.lifecycle_policy == null ? 0 : 1
   repository = aws_ecr_repository.main.name
 
-  policy = data.aws_ecr_lifecycle_policy_document.main.json
+  policy = var.lifecycle_policy
 }
-
-data "aws_ecr_lifecycle_policy_document" "main" {
-  rule {
-    priority    = 1
-    description = "Expire untaggged images older than 1 day"
-  
-    selection {
-      tag_status      = "untagged"
-      count_type      = "sinceImagePushed"
-      count_unit      = "days"
-      count_number    = var.expire_untagged_days
-    }
-  }
-  # Update to sinceImagePulled - https://github.com/aws/containers-roadmap/issues/921
-  # rule {
-  #   priority    = 2
-  #   description = "Keep last 25 images"
-  # 
-  #   selection {
-  #     tag_status      = "tagged"
-  #     tag_pattern_list = ["*"]
-  #     count_type      = "imageCountMoreThan"
-  #     count_number    = 25
-  #   }
-  # }
-}
-
-/*
-{
-    "rulePriority": 2,
-    "description": "Keep last 25 images",
-    "selection": {
-        "tagStatus": "tagged",
-        "tagPrefixList": ["v"],
-        "countType": "imageCountMoreThan",
-        "countNumber": 25
-    },
-    "action": {
-        "type": "expire"
-    }
-}
-*/
