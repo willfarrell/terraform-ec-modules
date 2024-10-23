@@ -95,7 +95,7 @@ resource "aws_ecr_lifecycle_policy" "main" {
   policy = aws_ecr_lifecycle_policy_document.main.json
 }
 
-resource "aws_ecr_lifecycle_policy_document" "main" {
+data "aws_ecr_lifecycle_policy_document" "main" {
   rule {
     priority    = 1
     description = "Expire untaggged images older than 1 day"
