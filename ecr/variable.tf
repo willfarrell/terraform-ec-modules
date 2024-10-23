@@ -22,3 +22,7 @@ variable "sub_accounts" {
     development = ""
   }
 }
+
+variable "kms_key_arn" {
+  default = null
+}

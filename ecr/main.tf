@@ -104,20 +104,21 @@ data "aws_ecr_lifecycle_policy_document" "main" {
       tag_status      = "untagged"
       count_type      = "sinceImagePushed"
       count_unit      = "days"
-      count_number    = 1
+      count_number    = var.expire_untagged_days
     }
   }
-  rule {
-    priority    = 2
-    description = "Keep last 25 images"
-  
-    selection {
-      tag_status      = "tagged"
-      tag_pattern_list = ["*"]
-      count_type      = "imageCountMoreThan"
-      count_number    = 25
-    }
-  }
+  # Update to sinceImagePulled - https://github.com/aws/containers-roadmap/issues/921
+  # rule {
+  #   priority    = 2
+  #   description = "Keep last 25 images"
+  # 
+  #   selection {
+  #     tag_status      = "tagged"
+  #     tag_pattern_list = ["*"]
+  #     count_type      = "imageCountMoreThan"
+  #     count_number    = 25
+  #   }
+  # }
 }
 
 /*
