@@ -6,6 +6,7 @@ resource "aws_sns_topic" "lambda-dlq" {
   sqs_success_feedback_role_arn    = aws_iam_role.lambda-dlq-sns.arn
   sqs_success_feedback_sample_rate = 100
   sqs_failure_feedback_role_arn    = aws_iam_role.lambda-dlq-sns.arn
+  signature_version                = 2
 }
 
 resource "aws_iam_role" "lambda-dlq-sns" {
