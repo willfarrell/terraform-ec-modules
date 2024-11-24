@@ -50,7 +50,7 @@ variable "layers" {
 }
 variable "runtime" {
   type    = string
-  default = "nodejs20.x"
+  default = "nodejs22.x"
 }
 variable "architecture" {
   type    = string
