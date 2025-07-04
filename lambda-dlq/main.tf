@@ -1,6 +1,6 @@
 # *** SNS *** #
 resource "aws_sns_topic" "lambda-dlq" {
-  name                             = "${var.name}-lambda-dlq"
+  name                             = "lambda-${var.name}-dlq"
   tracing_config                   = "Active"
   kms_master_key_id                = var.kms_master_key_id
   sqs_success_feedback_role_arn    = aws_iam_role.lambda-dlq-sns.arn
@@ -10,7 +10,7 @@ resource "aws_sns_topic" "lambda-dlq" {
 }
 
 resource "aws_iam_role" "lambda-dlq-sns" {
-  name               = "${var.name}-lambda-dlq-sns-role"
+  name               = "lambda-${var.name}-dlq-sns-role"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.lambda-dlq-sns.json
 }
@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "lambda-dlq-sns" {
 }
 
 resource "aws_iam_role_policy" "lambda-dlq-sns-delivery-status-role-policy" {
-  name   = "${var.name}-lambda-dlq-sns-delivery-status-role-policy"
+  name   = "lambda-${var.name}-dlq-sns-delivery-status-role-policy"
   role   = aws_iam_role.lambda-dlq-sns.id
   policy = data.aws_iam_policy_document.lambda-dlq-sns-delivery-status-role-policy.json
 }
@@ -55,7 +55,7 @@ resource "aws_sns_topic_subscription" "lambda-dlq" {
 }
 
 resource "aws_sqs_queue" "lambda-dlq" {
-  name                      = "${var.name}-lambda-dlq"
+  name                      = "lambda-${var.name}-dlq"
   message_retention_seconds = 1209600 # 14d
 
   kms_master_key_id = var.kms_master_key_id
@@ -88,7 +88,7 @@ data "aws_iam_policy_document" "lambda-dlq-sqs-policy" {
 
 # *** Lambda Policy *** #
 resource "aws_iam_policy" "lambda-dlq" {
-  name   = "${var.name}-lambda-dlq-policy"
+  name   = "lambda-${var.name}-dlq-policy"
   policy = data.aws_iam_policy_document.lambda-dlq.json
 }
 

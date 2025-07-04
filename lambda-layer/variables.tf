@@ -41,7 +41,7 @@ variable "compatible_architectures" {
 }
 variable "compatible_runtimes" {
   type = list(string)
-  default = ["nodejs","nodejs18.x","nodejs20.x"]
+  default = ["nodejs","nodejs20.x","nodejs22.x"]
 }
 
 # Layer Perms
