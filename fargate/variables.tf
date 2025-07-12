@@ -36,13 +36,15 @@ variable "command" {
 variable "volumes" {
   type = list(object({
     name = string
-    file_system_id = string
-    container_path = optional(string, "/mnt/efs")
-    root_directory = optional(string, "/")
+    container_path = optional(string, "/tmp") # /mnt/efs
     readOnly = optional(bool, false)
-    transit_encryption = optional(bool, true)
-    access_point_id = optional(string, "")
-    iam = optional(bool, false)
+    efs = optional(object({
+      file_system_id = string
+      root_directory = optional(string, "/")
+      transit_encryption = optional(bool, true)
+      access_point_id = optional(string, "")
+      iam = optional(bool, false)
+    }), null) 
   }))
   default = []
 }
@@ -97,7 +99,7 @@ variable "secrets" {
   default = {}
 }
 
-variable "xray"{
+variable "xray" {
   type = bool
   default = true
 }

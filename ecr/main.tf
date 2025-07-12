@@ -8,6 +8,9 @@ resource "aws_ecr_repository" "main" {
 
   encryption_configuration {
     encryption_type = "AES256"
+    # TOD test on non-prod containers, may need decryption
+    # encryption_type = "KMS"
+    # kms_key = var.kms_key_arn
   }
 }
 

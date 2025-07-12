@@ -88,15 +88,18 @@ resource "aws_ecs_task_definition" "fargate" {
     for_each = var.volumes
     content {
       name = volume.value["name"]
-      efs_volume_configuration {
-        file_system_id = volume.value["file_system_id"]
-        root_directory = volume.value["root_directory"] # Default: "/"
-        transit_encryption = volume.value["transit_encryption"] ? "ENABLED" : "DISABLED"
-        dynamic "authorization_config" {
-          for_each = try(volume.value["access_point_id"], "") != "" ? [1] : []
-          content {
-            access_point_id = volume.value["access_point_id"]
-            iam             = volume.value["iam"] ? "ENABLED" : "DISABLED"
+      dynamic "efs_volume_configuration" {
+        for_each = volume.value["efs"] == null ? [] : [volume.value["efs"]]
+        content {
+          file_system_id = efs_volume_configuration.value["file_system_id"]
+          root_directory = efs_volume_configuration.value["root_directory"] # Default: "/"
+          transit_encryption = efs_volume_configuration.value["transit_encryption"] ? "ENABLED" : "DISABLED"
+          dynamic "authorization_config" {
+            for_each = try(efs_volume_configuration.value["access_point_id"], "") != "" ? [1] : []
+            content {
+              access_point_id = efs_volume_configuration.value["access_point_id"]
+              iam             = efs_volume_configuration.value["iam"] ? "ENABLED" : "DISABLED"
+            }
           }
         }
       }
